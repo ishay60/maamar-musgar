@@ -7,3 +7,5 @@ coverage
 .env*.local
 .env
 *.log
+.claude/
+tsconfig.tsbuildinfo

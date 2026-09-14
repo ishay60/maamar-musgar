@@ -23,7 +23,7 @@ export function ControlsBar({ game }: { game: UsePuzzleGame }) {
     setWrongFlash(true);
     const t = setTimeout(() => setWrongFlash(false), 480);
     return () => clearTimeout(t);
-  }, [game.shakeNodeId, game.tick]);
+  }, [game.shakeNodeId, game.game.wrongGuesses]);
 
   const onKeyboardChar = (ch: string) => {
     if (!canAct) return;

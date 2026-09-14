@@ -19,7 +19,6 @@ interface InternalState {
   input: string;
   shakeNodeId: string | null;
   popNodeId: string | null;
-  tick: number;
 }
 
 type Action =
@@ -75,7 +74,6 @@ function reducer(state: InternalState, action: Action): InternalState {
           input: "",
           popNodeId: res.solvedNodeId,
           shakeNodeId: null,
-          tick: state.tick + 1,
         };
       }
       if (res.reason === "wrong") {
@@ -85,7 +83,6 @@ function reducer(state: InternalState, action: Action): InternalState {
           input: "",
           shakeNodeId: nodeId ?? nextGame.lastWrongNodeId,
           popNodeId: null,
-          tick: state.tick + 1,
         };
       }
       return state;
@@ -95,7 +92,7 @@ function reducer(state: InternalState, action: Action): InternalState {
       if (!nodeId) return state;
       const nextGame = cloneGame(state.game);
       if (!applyPeek(action.puzzle, nextGame, nodeId)) return state;
-      return { ...state, game: nextGame, tick: state.tick + 1 };
+      return { ...state, game: nextGame };
     }
     case "peekNode": {
       const nextGame = cloneGame(state.game);
@@ -105,7 +102,6 @@ function reducer(state: InternalState, action: Action): InternalState {
         ...state,
         game: nextGame,
         input: "",
-        tick: state.tick + 1,
       };
     }
     case "reveal": {
@@ -119,7 +115,6 @@ function reducer(state: InternalState, action: Action): InternalState {
         game: nextGame,
         input: "",
         popNodeId: res.solvedNodeId,
-        tick: state.tick + 1,
       };
     }
     case "revealNode": {
@@ -132,7 +127,6 @@ function reducer(state: InternalState, action: Action): InternalState {
         game: nextGame,
         input: "",
         popNodeId: res.solvedNodeId,
-        tick: state.tick + 1,
       };
     }
     case "forceComplete": {
@@ -147,7 +141,6 @@ function reducer(state: InternalState, action: Action): InternalState {
         input: "",
         popNodeId: null,
         shakeNodeId: null,
-        tick: state.tick + 1,
       };
     }
     case "clearPop":
@@ -166,7 +159,6 @@ export function usePuzzleGame(puzzle: Puzzle) {
       input: "",
       shakeNodeId: null,
       popNodeId: null,
-      tick: 0,
     }),
   );
 
@@ -179,12 +171,12 @@ export function usePuzzleGame(puzzle: Puzzle) {
 
   const solvableLeaves = useMemo(
     () => getSolvableLeaves(puzzle.tree, state.game.solved),
-    [puzzle.tree, state.game.solved, state.tick],
+    [puzzle.tree, state.game.solved],
   );
 
   const complete = useMemo(
     () => isPuzzleComplete(puzzle.tree, state.game.solved),
-    [puzzle.tree, state.game.solved, state.tick],
+    [puzzle.tree, state.game.solved],
   );
 
   const setActive = useCallback((nodeId: string | null) => {
@@ -276,7 +268,6 @@ export function usePuzzleGame(puzzle: Puzzle) {
     reveal,
     revealNode,
     forceComplete,
-    tick: state.tick,
   } as const;
 }
 

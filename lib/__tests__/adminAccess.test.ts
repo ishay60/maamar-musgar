@@ -3,19 +3,15 @@ import { isAdminEnabled } from "../adminAccess";
 
 describe("isAdminEnabled", () => {
   it("enables admin for the local workspace", () => {
-    expect(isAdminEnabled({ NEXT_PUBLIC_WORKSPACE: "local" })).toBe(true);
+    expect(isAdminEnabled({ WORKSPACE: "local" })).toBe(true);
   });
 
   it("disables admin outside the local workspace", () => {
-    expect(isAdminEnabled({ NEXT_PUBLIC_WORKSPACE: "production" })).toBe(false);
+    expect(isAdminEnabled({ WORKSPACE: "production" })).toBe(false);
+    expect(isAdminEnabled({})).toBe(false);
   });
 
-  it("prefers the server workspace env when present", () => {
-    expect(
-      isAdminEnabled({
-        WORKSPACE: "local",
-        NEXT_PUBLIC_WORKSPACE: "production",
-      }),
-    ).toBe(true);
+  it("ignores the public build-time flag", () => {
+    expect(isAdminEnabled({ NEXT_PUBLIC_WORKSPACE: "local" })).toBe(false);
   });
 });

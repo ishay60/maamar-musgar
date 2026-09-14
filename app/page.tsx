@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { GameContainer } from "@/components/GameContainer";
+import { isAdminEnabled } from "@/lib/adminAccess";
+import { publishedPuzzles, todayInIsrael } from "@/lib/puzzle/puzzles";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "חידת היום",
@@ -13,10 +16,26 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HomePage() {
+export default function HomePage({
+  searchParams,
+}: {
+  searchParams: { date?: string; preview?: string };
+}) {
+  const today = todayInIsrael();
+  const available = publishedPuzzles(today);
+  const puzzle =
+    available.find((p) => p.date === searchParams.date) ?? available[available.length - 1];
+  if (!puzzle) {
+    return <main className="p-8 text-center">אין עדיין חידה. חזרו מחר.</main>;
+  }
+  const studioEnabled = isAdminEnabled();
   return (
-    <Suspense fallback={null}>
-      <GameContainer />
-    </Suspense>
+    <GameContainer
+      puzzle={puzzle}
+      dates={available.map((p) => p.date)}
+      today={today}
+      studioEnabled={studioEnabled}
+      previewEnd={studioEnabled && searchParams.preview === "end"}
+    />
   );
 }

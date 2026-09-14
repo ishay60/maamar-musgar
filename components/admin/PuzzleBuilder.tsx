@@ -16,10 +16,11 @@ import type { AnswerRow } from "./AnswersTable";
 import { EventSuggestions } from "./EventSuggestions";
 import { GameContainerPreview } from "./GameContainerPreview";
 import { TreeView } from "./TreeView";
+import { todayISO } from "@/lib/calendar";
 
 const STARTER = {
   title: "חידת בניין לדוגמה",
-  date: new Date().toISOString().slice(0, 10),
+  date: todayISO(),
   finalSentence: "דוד בן גוריון הכריז על הקמת מדינת ישראל",
   historicalContext:
     "ב-14 במאי 1948 הוכרזה מדינת ישראל במוזיאון תל אביב ברחוב רוטשילד.",
@@ -433,9 +434,6 @@ function ExportPanel({
     | { status: "error"; message: string }
   >({ status: "idle" });
   const json = puzzle ? serializePuzzleForExport(puzzle) : "// תקנו שגיאות לפני ייצוא";
-  const tsSnippet = puzzle
-    ? buildTsSnippet(puzzle)
-    : "// תקנו שגיאות לפני ייצוא";
 
   useEffect(() => {
     setSaveState({ status: "idle" });
@@ -503,15 +501,6 @@ function ExportPanel({
         >
           {copied === "json" ? "✓ הועתק" : "[copy JSON]"}
         </button>
-        <button
-          type="button"
-          onClick={() => copy("ts", tsSnippet)}
-          disabled={!puzzle}
-          className="px-3 py-1.5 rounded-md puzzle-mono text-[12px] disabled:opacity-40"
-          style={{ backgroundColor: "#171412", color: "#fbfaf4" }}
-        >
-          {copied === "ts" ? "✓ הועתק" : "[copy TypeScript]"}
-        </button>
       </div>
       {saveState.status === "saved" || saveState.status === "error" ? (
         <div
@@ -530,54 +519,6 @@ function ExportPanel({
       </pre>
     </section>
   );
-}
-
-function buildTsSnippet(puzzle: Puzzle): string {
-  const specs: string[] = [];
-  const walk = (n: import("@/lib/puzzle").PuzzleNode) => {
-    if (n.type === "bracket") {
-      const parts: string[] = [`answer: ${JSON.stringify(n.answer ?? "")}`];
-      if (n.acceptedAnswers?.length) {
-        parts.push(`acceptedAnswers: ${JSON.stringify(n.acceptedAnswers)}`);
-      }
-      if (n.difficulty) parts.push(`difficulty: ${JSON.stringify(n.difficulty)}`);
-      if (n.clueType) parts.push(`clueType: ${JSON.stringify(n.clueType)}`);
-      specs.push(`    { ${parts.join(", ")} },`);
-    }
-    n.children?.forEach(walk);
-  };
-  walk(puzzle.tree);
-  return [
-    `buildPuzzle({`,
-    `  id: ${JSON.stringify(puzzle.id)},`,
-    `  date: ${JSON.stringify(puzzle.date)},`,
-    `  title: ${JSON.stringify(puzzle.title)},`,
-    `  finalSentence: ${JSON.stringify(puzzle.finalSentence)},`,
-    puzzle.historicalContext != null
-      ? `  historicalContext: ${JSON.stringify(puzzle.historicalContext)},`
-      : null,
-    `  bracketString:`,
-    `    ${JSON.stringify(reconstructBracketString(puzzle))},`,
-    `  specs: [`,
-    ...specs,
-    `  ],`,
-    `  tags: ${JSON.stringify(puzzle.tags ?? [])},`,
-    `})`,
-  ]
-    .filter((l): l is string => !!l)
-    .join("\n");
-}
-
-function reconstructBracketString(puzzle: Puzzle): string {
-  const walk = (n: import("@/lib/puzzle").PuzzleNode): string => {
-    if (n.type === "text") return n.content ?? "";
-    if (n.type === "bracket") {
-      const inner = (n.children ?? []).map(walk).join("");
-      return `[${inner}]`;
-    }
-    return (n.children ?? []).map(walk).join("");
-  };
-  return walk(puzzle.tree);
 }
 
 function puzzleToSeed(puzzle: Puzzle) {

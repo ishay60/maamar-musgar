@@ -13,7 +13,7 @@ export function monthDayFromIso(iso: string): string | null {
   return `${m[1]}-${m[2]}`;
 }
 
-export async function loadAllEvents(): Promise<HistoricalEvent[]> {
+async function loadAllEvents(): Promise<HistoricalEvent[]> {
   try {
     const raw = await readFile(DATA_FILE, "utf8");
     const parsed = JSON.parse(raw);
