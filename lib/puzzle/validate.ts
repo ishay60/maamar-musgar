@@ -123,20 +123,6 @@ export function validatePuzzleAuthoring(input: ValidateInput): ValidationResult 
   };
 }
 
-export function collectBracketClues(tree: PuzzleNode): { id: string; clue: string }[] {
-  const out: { id: string; clue: string }[] = [];
-  const walk = (n: PuzzleNode) => {
-    if (n.type === "bracket") {
-      const clue = (n.children ?? [])
-        .map((c) => (c.type === "text" ? c.content ?? "" : "[…]"))
-        .join("");
-      out.push({ id: n.id, clue });
-    }
-    n.children?.forEach(walk);
-  };
-  walk(tree);
-  return out;
-}
 
 export function serializePuzzleForExport(puzzle: Puzzle): string {
   return JSON.stringify(

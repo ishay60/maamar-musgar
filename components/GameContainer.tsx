@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { findPuzzleByDate, neighborPuzzleDate, samplePuzzle } from "@/lib/puzzle/samplePuzzles";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { computeScore, findNode, RANK_LABEL_HE } from "@/lib/puzzle";
 import type { Puzzle } from "@/lib/puzzle";
 import { AnswerBank } from "./AnswerBank";
@@ -15,52 +14,29 @@ import { PuzzleBoard } from "./PuzzleBoard";
 import { usePuzzleGame } from "./usePuzzleGame";
 import { useStreak } from "./useStreak";
 
-export function GameContainer() {
-  const params = useSearchParams();
-  const initialDate = params?.get("date") && findPuzzleByDate(params.get("date")!)
-    ? params.get("date")!
-    : samplePuzzle.date;
-  const studioEnabled = process.env.NEXT_PUBLIC_WORKSPACE === "local";
-  const previewEnd =
-    studioEnabled &&
-    params?.get("preview") === "end";
-  const [date, setDate] = useState(initialDate);
-  const [helpOpen, setHelpOpen] = useState(false);
-  const puzzle = useMemo(() => findPuzzleByDate(date) ?? samplePuzzle, [date]);
-
-  // Keying the instance on puzzle.id gives us a clean hook mount per puzzle,
-  // so switching dates fully resets the game state.
-  return (
-    <GameInstance
-      key={puzzle.id}
-      puzzle={puzzle}
-      setDate={setDate}
-      helpOpen={helpOpen}
-      setHelpOpen={setHelpOpen}
-      previewEnd={previewEnd}
-      studioEnabled={studioEnabled}
-    />
-  );
+export interface GameContainerProps {
+  puzzle: Puzzle;
+  /** Published puzzle dates, ascending. Drives prev/next navigation. */
+  dates: string[];
+  /** Today's date in Israel; only this puzzle counts toward the streak. */
+  today: string;
+  studioEnabled: boolean;
+  previewEnd: boolean;
 }
 
-function GameInstance({
-  puzzle,
-  setDate,
-  helpOpen,
-  setHelpOpen,
-  previewEnd,
-  studioEnabled,
-}: {
-  puzzle: Puzzle;
-  setDate: (d: string) => void;
-  helpOpen: boolean;
-  setHelpOpen: (v: boolean) => void;
-  previewEnd: boolean;
-  studioEnabled: boolean;
-}) {
+export function GameContainer(props: GameContainerProps) {
+  // Keying the instance on puzzle.id gives us a clean hook mount per puzzle,
+  // so switching dates fully resets the game state.
+  return <GameInstance key={props.puzzle.id} {...props} />;
+}
+
+function GameInstance({ puzzle, dates, today, previewEnd, studioEnabled }: GameContainerProps) {
+  const router = useRouter();
   const game = usePuzzleGame(puzzle);
-  const streak = useStreak();
+  const streak = useStreak(today);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [announcement, setAnnouncement] = useState("");
+  const setDate = (d: string) => router.replace(`/?date=${d}`);
 
   useEffect(() => {
     if (previewEnd && !game.complete) game.forceComplete();
@@ -90,8 +66,9 @@ function GameInstance({
     setAnnouncement("תשובה שגויה");
   }, [game.shakeNodeId]);
 
-  const prev = neighborPuzzleDate(puzzle.date, "prev");
-  const next = neighborPuzzleDate(puzzle.date, "next");
+  const idx = dates.indexOf(puzzle.date);
+  const prev = dates[idx - 1] ?? null;
+  const next = dates[idx + 1] ?? null;
 
   // Mobile drawer behavior: collapse the HUD when the player scrolls into the
   // puzzle, restore it when scrolled back to the top — mirrors the iOS-y

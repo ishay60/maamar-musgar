@@ -100,7 +100,7 @@ function NavArrow({
 
 function formatHebrewDate(iso: string): string {
   try {
-    const d = new Date(iso);
+    const d = new Date(iso + "T00:00:00");
     return d
       .toLocaleDateString("he-IL", { day: "numeric", month: "long", year: "numeric" })
       .replace(/\s+/g, " ");

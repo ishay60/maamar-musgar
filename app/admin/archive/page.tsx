@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { samplePuzzles } from "@/lib/puzzle/samplePuzzles";
+import { puzzles } from "@/lib/puzzle/puzzles";
 
 export const metadata: Metadata = {
   title: "ארכיון החידות",
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default function ArchivePage() {
-  const sorted = [...samplePuzzles].sort((a, b) => b.date.localeCompare(a.date));
+  const sorted = [...puzzles].sort((a, b) => b.date.localeCompare(a.date));
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
@@ -22,7 +22,7 @@ export default function ArchivePage() {
             ארכיון החידות
           </h1>
           <p className="puzzle-mono text-[12px] mt-1" style={{ color: "#6b6356" }}>
-            Phase 3 · Archive · {samplePuzzles.length} puzzles
+            Phase 3 · Archive · {puzzles.length} puzzles
           </p>
         </div>
         <nav

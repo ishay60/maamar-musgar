@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAdminEnabled } from "@/lib/adminAccess";
 import { buildPuzzle } from "@/lib/puzzle/build";
 import type { BuildPuzzleInput } from "@/lib/puzzle/build";
+import type { ClueType, Difficulty } from "@/lib/puzzle/types";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +38,13 @@ export async function POST(request: NextRequest) {
   }
 
   const saved = await readSavedPuzzleInputs();
-  const idx = saved.findIndex((p) => p.id === input.id || p.date === input.date);
+  if (saved.some((p) => p.id !== input.id && p.date === input.date)) {
+    return NextResponse.json(
+      { ok: false, error: `Another puzzle already owns date ${input.date}.` },
+      { status: 409 },
+    );
+  }
+  const idx = saved.findIndex((p) => p.id === input.id);
   const next = saved.slice();
   if (idx >= 0) {
     next[idx] = input;
@@ -92,10 +99,7 @@ function parseBuildPuzzleInput(value: unknown): BuildPuzzleInput {
     tags: Array.isArray(value.tags)
       ? value.tags.filter((tag): tag is string => typeof tag === "string")
       : undefined,
-    difficulty:
-      value.difficulty === "easy" || value.difficulty === "medium" || value.difficulty === "hard"
-        ? value.difficulty
-        : undefined,
+    difficulty: parseDifficulty(value.difficulty),
   };
 }
 
@@ -108,17 +112,26 @@ function parseSpecs(value: unknown): BuildPuzzleInput["specs"] {
       acceptedAnswers: Array.isArray(spec.acceptedAnswers)
         ? spec.acceptedAnswers.filter((a): a is string => typeof a === "string")
         : undefined,
-      clueType:
-        typeof spec.clueType === "string"
-          ? (spec.clueType as BuildPuzzleInput["specs"][number]["clueType"])
-          : undefined,
-      difficulty:
-        typeof spec.difficulty === "string"
-          ? (spec.difficulty as BuildPuzzleInput["specs"][number]["difficulty"])
-          : undefined,
+      clueType: parseClueType(spec.clueType, `specs[${idx}].clueType`),
+      difficulty: parseDifficulty(spec.difficulty, `specs[${idx}].difficulty`),
       hint: typeof spec.hint === "string" ? spec.hint : undefined,
     };
   });
+}
+
+const DIFFICULTIES: Difficulty[] = ["easy", "medium", "hard"];
+const CLUE_TYPES: ClueType[] = ["definition", "fill-blank", "trivia", "wordplay", "association"];
+
+function parseDifficulty(value: unknown, field = "difficulty"): Difficulty | undefined {
+  if (value == null || value === "") return undefined;
+  if (!DIFFICULTIES.includes(value as Difficulty)) throw new Error(`${field} is invalid.`);
+  return value as Difficulty;
+}
+
+function parseClueType(value: unknown, field: string): ClueType | undefined {
+  if (value == null || value === "") return undefined;
+  if (!CLUE_TYPES.includes(value as ClueType)) throw new Error(`${field} is invalid.`);
+  return value as ClueType;
 }
 
 function requiredString(value: unknown, field: string): string {
