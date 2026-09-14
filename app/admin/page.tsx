@@ -11,17 +11,14 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const pickFirst = (v: string | string[] | undefined): string | undefined =>
-  Array.isArray(v) ? v[0] : v;
-
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams?: { date?: string | string[]; id?: string | string[] };
+  searchParams?: { date?: string; id?: string };
 }) {
-  const requestedId = pickFirst(searchParams?.id);
+  const requestedId = searchParams?.id;
   // No date in the URL means "today": open today's puzzle if it exists.
-  const requestedDate = pickFirst(searchParams?.date) ?? todayInIsrael();
+  const requestedDate = searchParams?.date ?? todayInIsrael();
   const puzzles = await loadLivePuzzles();
 
   const puzzleById = requestedId

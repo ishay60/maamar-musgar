@@ -1,6 +1,7 @@
 "use client";
 
 import type { PuzzleNode } from "@/lib/puzzle";
+import { clueSummary, Empty } from "./shared";
 
 export interface AnswerRow {
   answer: string;
@@ -17,7 +18,7 @@ export const emptyAnswerRow = (): AnswerRow => ({
 });
 
 /**
- * Per-bracket answer editor. One row per bracket in DFS order, with clue
+ * Per-bracket answer editor. One row per bracket in order of appearance, with clue
  * summary, required answer, optional accepted-variants, difficulty, clue type.
  */
 export function AnswersTable({
@@ -36,22 +37,13 @@ export function AnswersTable({
   };
 
   if (brackets.length === 0) {
-    return (
-      <div
-        className="puzzle-mono text-[12px] text-center py-4"
-        style={{ color: "#9ca3af" }}
-      >
-        אין סוגרים עדיין. הוסיפו סוגרים במחרוזת כדי לערוך תשובות.
-      </div>
-    );
+    return <Empty text="אין סוגרים עדיין. הוסיפו סוגרים במחרוזת כדי לערוך תשובות." />;
   }
 
   return (
     <div className="space-y-2">
       {brackets.map((node, idx) => {
-        const clueSummary = (node.children ?? [])
-          .map((c) => (c.type === "text" ? c.content ?? "" : "[…]"))
-          .join("");
+        const summary = clueSummary(node);
         const row = rows[idx] ?? emptyAnswerRow();
         return (
           <div
@@ -62,7 +54,7 @@ export function AnswersTable({
             <div
               className="puzzle-mono text-[12px] rounded-sm px-1 text-center"
               style={{ backgroundColor: "#ede9fe", color: "#4c1d95" }}
-              title={`סוגר ${idx} · DFS`}
+              title={`סוגר ${idx} (לפי סדר הופעה)`}
             >
               {idx}
             </div>
@@ -70,7 +62,7 @@ export function AnswersTable({
               className="text-[13px] leading-snug"
               style={{ color: "#374151", fontFamily: '"David Libre", serif' }}
             >
-              {clueSummary || <span style={{ opacity: 0.4 }}>(ריק)</span>}
+              {summary || <span style={{ opacity: 0.4 }}>(ריק)</span>}
             </div>
             <input
               type="text"

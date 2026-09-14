@@ -1,6 +1,7 @@
 import type { Puzzle } from "./types";
 import type { GameState } from "./engine";
 import { collectBrackets } from "./parser";
+import { formatHebrewDate } from "../calendar";
 
 /**
  * Spoiler-free share grid, Wordle-style.
@@ -43,34 +44,15 @@ export function buildShareGrid(puzzle: Puzzle, state: GameState): string {
   return rows.join("\n");
 }
 
-const SHARE_BASE_URL = "https://maamar-musgar.vercel.app";
-
 export function buildShareText(
   puzzle: Puzzle,
   state: GameState,
   extras: { finalScore: number; rankLabel: string; streak: number },
-  options: { includeLink?: boolean } = {},
 ): string {
-  const { includeLink = true } = options;
-  const grid = buildShareGrid(puzzle, state);
-  const date = formatShareDate(puzzle.date);
-  const lines = [
-    `מאמר מוסגר · ${date}`,
-    grid,
+  return [
+    `מאמר מוסגר · ${formatHebrewDate(puzzle.date)}`,
+    buildShareGrid(puzzle, state),
     `⭐ ${extras.rankLabel} · ${extras.finalScore} נק׳` +
       (extras.streak > 0 ? ` · 🔥 רצף ${extras.streak}` : ""),
-  ];
-  if (includeLink) {
-    lines.push(`שחקו גם: ${SHARE_BASE_URL}/?date=${puzzle.date}`);
-  }
-  return lines.join("\n");
-}
-
-function formatShareDate(iso: string): string {
-  try {
-    const d = new Date(iso + "T00:00:00");
-    return d.toLocaleDateString("he-IL", { day: "numeric", month: "long", year: "numeric" });
-  } catch {
-    return iso;
-  }
+  ].join("\n");
 }

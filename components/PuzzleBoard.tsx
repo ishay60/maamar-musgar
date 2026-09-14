@@ -281,7 +281,7 @@ function HelpConfirmDialog({
           className="puzzle-mono text-[12px] tracking-wider uppercase"
           style={{ color: isPeek ? "#b45309" : "#b91c1c" }}
         >
-          {isPeek ? "peek −5" : "reveal −20"}
+          {isPeek ? "הצצה −5" : "חשיפה −20"}
         </div>
         <h2 className="text-xl font-bold mt-1" style={{ fontFamily: '"David Libre", serif' }}>
           {isPeek ? "לקבל רמז לסוגר הזה?" : "לחשוף את התשובה?"}
@@ -319,7 +319,7 @@ function HelpConfirmDialog({
             className="px-3 py-1.5 rounded-md puzzle-mono text-[12px]"
             style={{ backgroundColor: "#171412", color: "#fbfaf4" }}
           >
-            {isPeek ? "[הצצה]" : "[reveal −20]"}
+            {isPeek ? "[הצצה]" : "[חשיפה −20]"}
           </button>
         </div>
       </div>

@@ -45,8 +45,8 @@ export function HelpDialog({ open, onClose }: { open: boolean; onClose: () => vo
           </li>
           <li>
             <b>ניקוד.</b> מתחילים מ-100. כל טעות עולה 2 נקודות,
-            <span className="puzzle-mono"> [peek]</span> 5,
-            <span className="puzzle-mono"> [reveal]</span> 20.
+            <span className="puzzle-mono"> [הצצה]</span> 5,
+            <span className="puzzle-mono"> [חשיפה]</span> 20.
           </li>
           <li>
             <b>דירוגי עיר.</b> פתרון נקי זוכה בכבוד <b>בורא המלכים</b>. כמה

@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default function HomePage({
   searchParams,
 }: {
-  searchParams: { date?: string; preview?: string };
+  searchParams: { date?: string };
 }) {
   const today = todayInIsrael();
   const available = publishedPuzzles(today);
@@ -28,14 +28,13 @@ export default function HomePage({
   if (!puzzle) {
     return <main className="p-8 text-center">אין עדיין חידה. חזרו מחר.</main>;
   }
-  const studioEnabled = isAdminEnabled();
   return (
     <GameContainer
+      key={puzzle.id}
       puzzle={puzzle}
       dates={available.map((p) => p.date)}
       today={today}
-      studioEnabled={studioEnabled}
-      previewEnd={studioEnabled && searchParams.preview === "end"}
+      studioEnabled={isAdminEnabled()}
     />
   );
 }

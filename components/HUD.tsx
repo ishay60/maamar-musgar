@@ -3,6 +3,7 @@
 import { computeLiveScore, DIFFICULTY_EMOJI, DIFFICULTY_LABEL_HE } from "@/lib/puzzle";
 import type { Puzzle } from "@/lib/puzzle";
 import type { UsePuzzleGame } from "./usePuzzleGame";
+import { formatHebrewDate } from "@/lib/calendar";
 
 export function HUD({
   puzzle,
@@ -61,14 +62,6 @@ export function HUD({
         </div>
       </div>
 
-      <button
-        type="button"
-        aria-label="מידע"
-        onClick={onShowHelp}
-        className="w-8 h-8 rounded-full border border-[#e7e0d0] text-[#6b6356] hover:bg-[#e7e0d0]/40 transition flex items-center justify-center puzzle-mono"
-      >
-        !
-      </button>
     </div>
   );
 }
@@ -96,15 +89,4 @@ function NavArrow({
       {glyph}
     </button>
   );
-}
-
-function formatHebrewDate(iso: string): string {
-  try {
-    const d = new Date(iso + "T00:00:00");
-    return d
-      .toLocaleDateString("he-IL", { day: "numeric", month: "long", year: "numeric" })
-      .replace(/\s+/g, " ");
-  } catch {
-    return iso;
-  }
 }

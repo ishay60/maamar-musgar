@@ -17,7 +17,6 @@ const nested = () =>
   buildPuzzle({
     id: "nested",
     date: "2026-01-01",
-    title: "t",
     finalSentence: "ירושלים בירה",
     bracketString: "[[inner] capital] [tail]",
     specs: [
@@ -93,7 +92,6 @@ describe("game engine", () => {
     const p = buildPuzzle({
       id: "x",
       date: "2026-01-01",
-      title: "t",
       finalSentence: "ירושלים",
       bracketString: "[city]",
       specs: [{ answer: "ירושלים" }],

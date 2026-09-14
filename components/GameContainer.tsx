@@ -21,16 +21,10 @@ export interface GameContainerProps {
   /** Today's date in Israel; only this puzzle counts toward the streak. */
   today: string;
   studioEnabled: boolean;
-  previewEnd: boolean;
 }
 
-export function GameContainer(props: GameContainerProps) {
-  // Keying the instance on puzzle.id gives us a clean hook mount per puzzle,
-  // so switching dates fully resets the game state.
-  return <GameInstance key={props.puzzle.id} {...props} />;
-}
-
-function GameInstance({ puzzle, dates, today, previewEnd, studioEnabled }: GameContainerProps) {
+/** Mount with `key={puzzle.id}` so switching dates fully resets the game state. */
+export function GameContainer({ puzzle, dates, today, studioEnabled }: GameContainerProps) {
   const router = useRouter();
   const game = usePuzzleGame(puzzle);
   const streak = useStreak(today);
@@ -39,16 +33,9 @@ function GameInstance({ puzzle, dates, today, previewEnd, studioEnabled }: GameC
   const setDate = (d: string) => router.replace(`/?date=${d}`);
 
   useEffect(() => {
-    if (previewEnd && !game.complete) game.forceComplete();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [previewEnd, puzzle.id]);
-
-  useEffect(() => {
     if (!game.complete) return;
     const score = computeScore(puzzle, game.game);
-    if (!previewEnd) {
-      streak.recordCompletion(puzzle.date, score.finalScore, RANK_LABEL_HE[score.rank]);
-    }
+    streak.recordCompletion(puzzle.date, score.finalScore, RANK_LABEL_HE[score.rank]);
     setAnnouncement(
       `נפתר! דרגה ${RANK_LABEL_HE[score.rank]}, ניקוד ${score.finalScore}. המשפט המלא: ${puzzle.finalSentence}.`,
     );

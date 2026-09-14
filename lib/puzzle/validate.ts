@@ -1,5 +1,5 @@
-import type { Puzzle, PuzzleNode } from "./types";
-import { collectBrackets, parseBracketString, reconstructSentence } from "./parser";
+import type { PuzzleNode } from "./types";
+import { parseBracketString, reconstructSentence } from "./parser";
 
 export type ValidationSeverity = "error" | "warning" | "info";
 
@@ -7,32 +7,27 @@ export interface ValidationIssue {
   severity: ValidationSeverity;
   code: string;
   message: string;
-  /** Optional bracket index (DFS order) the issue is tied to. */
-  bracketIndex?: number;
 }
 
 export interface ValidationResult {
   ok: boolean;
   bracketCount: number;
   issues: ValidationIssue[];
-  tree?: PuzzleNode;
-  bracketOrder?: PuzzleNode[];
 }
 
 export interface ValidateInput {
   bracketString: string;
   answers: string[];
   finalSentence: string;
-  minBrackets?: number;
 }
 
 /**
- * Full-structural validation for the authoring surface. Maps the checks listed
- * in the plan's validation engine table (section 5.5) onto a single function.
+ * Full-structural validation for the authoring surface.
  */
 export function validatePuzzleAuthoring(input: ValidateInput): ValidationResult {
   const issues: ValidationIssue[] = [];
-  const { bracketString, answers, finalSentence, minBrackets = 3 } = input;
+  const { bracketString, answers, finalSentence } = input;
+  const minBrackets = 3;
 
   if (!bracketString.trim()) {
     issues.push({ severity: "error", code: "empty-string", message: "ציינו את מחרוזת הסוגריים" });
@@ -61,7 +56,6 @@ export function validatePuzzleAuthoring(input: ValidateInput): ValidationResult 
         severity: "error",
         code: "empty-bracket",
         message: `סוגר #${idx + 1} ריק — חייב להכיל טקסט או סוגרי משנה`,
-        bracketIndex: idx,
       });
     }
   });
@@ -87,7 +81,6 @@ export function validatePuzzleAuthoring(input: ValidateInput): ValidationResult 
           severity: "error",
           code: "missing-answer",
           message: `חסרה תשובה לסוגר #${idx + 1}`,
-          bracketIndex: idx,
         });
       }
     });
@@ -118,43 +111,6 @@ export function validatePuzzleAuthoring(input: ValidateInput): ValidationResult 
     ok: errorCount === 0,
     bracketCount: bracketOrder.length,
     issues,
-    tree,
-    bracketOrder,
   };
 }
 
-
-export function serializePuzzleForExport(puzzle: Puzzle): string {
-  return JSON.stringify(
-    {
-      id: puzzle.id,
-      date: puzzle.date,
-      title: puzzle.title,
-      finalSentence: puzzle.finalSentence,
-      historicalContext: puzzle.historicalContext,
-      totalBrackets: puzzle.totalBrackets,
-      maxScore: puzzle.maxScore,
-      difficulty: puzzle.difficulty,
-      tree: stripRuntimeFields(puzzle.tree),
-      tags: puzzle.tags,
-    },
-    null,
-    2,
-  );
-}
-
-function stripRuntimeFields(n: PuzzleNode): PuzzleNode {
-  const { id, type, content, answer, clue, children, acceptedAnswers, clueType, difficulty, hint } = n;
-  const out: PuzzleNode = { id, type };
-  if (content !== undefined) out.content = content;
-  if (answer !== undefined) out.answer = answer;
-  if (clue !== undefined) out.clue = clue;
-  if (acceptedAnswers !== undefined) out.acceptedAnswers = acceptedAnswers;
-  if (clueType !== undefined) out.clueType = clueType;
-  if (difficulty !== undefined) out.difficulty = difficulty;
-  if (hint !== undefined) out.hint = hint;
-  if (children) out.children = children.map(stripRuntimeFields);
-  return out;
-}
-
-export { collectBrackets };

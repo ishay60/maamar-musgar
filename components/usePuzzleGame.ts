@@ -1,12 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
+import { useCallback, useEffect, useMemo, useReducer } from "react";
 import type { Puzzle, PuzzleNode } from "@/lib/puzzle";
 import {
   applyGuessToSolvableLeaf,
   applyPeek,
   applyReveal,
-  collectBrackets,
   createGameState,
   findNode,
   getSolvableLeaves,
@@ -25,11 +24,8 @@ type Action =
   | { type: "setActive"; nodeId: string | null }
   | { type: "setInput"; value: string }
   | { type: "submit"; puzzle: Puzzle }
-  | { type: "peek"; puzzle: Puzzle }
   | { type: "peekNode"; puzzle: Puzzle; nodeId: string }
-  | { type: "reveal"; puzzle: Puzzle }
   | { type: "revealNode"; puzzle: Puzzle; nodeId: string }
-  | { type: "forceComplete"; puzzle: Puzzle }
   | { type: "clearPop" }
   | { type: "clearShake" };
 
@@ -87,13 +83,6 @@ function reducer(state: InternalState, action: Action): InternalState {
       }
       return state;
     }
-    case "peek": {
-      const nodeId = state.game.activeNodeId;
-      if (!nodeId) return state;
-      const nextGame = cloneGame(state.game);
-      if (!applyPeek(action.puzzle, nextGame, nodeId)) return state;
-      return { ...state, game: nextGame };
-    }
     case "peekNode": {
       const nextGame = cloneGame(state.game);
       nextGame.activeNodeId = action.nodeId;
@@ -102,19 +91,6 @@ function reducer(state: InternalState, action: Action): InternalState {
         ...state,
         game: nextGame,
         input: "",
-      };
-    }
-    case "reveal": {
-      const nodeId = state.game.activeNodeId;
-      if (!nodeId) return state;
-      const nextGame = cloneGame(state.game);
-      const res = applyReveal(action.puzzle, nextGame, nodeId);
-      if (!res.ok) return state;
-      return {
-        ...state,
-        game: nextGame,
-        input: "",
-        popNodeId: res.solvedNodeId,
       };
     }
     case "revealNode": {
@@ -127,20 +103,6 @@ function reducer(state: InternalState, action: Action): InternalState {
         game: nextGame,
         input: "",
         popNodeId: res.solvedNodeId,
-      };
-    }
-    case "forceComplete": {
-      const ids = collectBrackets(action.puzzle.tree).map((n) => n.id);
-      const nextGame = cloneGame(state.game);
-      nextGame.solved = new Set(ids);
-      nextGame.solveOrder = [...ids];
-      nextGame.activeNodeId = null;
-      return {
-        ...state,
-        game: nextGame,
-        input: "",
-        popNodeId: null,
-        shakeNodeId: null,
       };
     }
     case "clearPop":
@@ -161,9 +123,6 @@ export function usePuzzleGame(puzzle: Puzzle) {
       popNodeId: null,
     }),
   );
-
-  const stateRef = useRef(state);
-  stateRef.current = state;
 
   const activeNode = state.game.activeNodeId
     ? findNode(puzzle.tree, state.game.activeNodeId)
@@ -191,18 +150,12 @@ export function usePuzzleGame(puzzle: Puzzle) {
     dispatch({ type: "submit", puzzle });
   }, [puzzle]);
 
-  const peek = useCallback(() => dispatch({ type: "peek", puzzle }), [puzzle]);
   const peekNode = useCallback(
     (nodeId: string) => dispatch({ type: "peekNode", puzzle, nodeId }),
     [puzzle],
   );
-  const reveal = useCallback(() => dispatch({ type: "reveal", puzzle }), [puzzle]);
   const revealNode = useCallback(
     (nodeId: string) => dispatch({ type: "revealNode", puzzle, nodeId }),
-    [puzzle],
-  );
-  const forceComplete = useCallback(
-    () => dispatch({ type: "forceComplete", puzzle }),
     [puzzle],
   );
 
@@ -263,11 +216,8 @@ export function usePuzzleGame(puzzle: Puzzle) {
     setActive,
     setInputValue,
     submit,
-    peek,
     peekNode,
-    reveal,
     revealNode,
-    forceComplete,
   } as const;
 }
 

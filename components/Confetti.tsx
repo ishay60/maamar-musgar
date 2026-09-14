@@ -5,27 +5,17 @@ import { useEffect, useMemo, useState } from "react";
 /**
  * Lightweight CSS-only confetti burst shown when a puzzle is solved.
  * No canvas, no external deps — just a one-shot overlay that fades itself out.
- * Honors prefers-reduced-motion by skipping the render.
+ * Hidden under prefers-reduced-motion via the .confetti rule in globals.css.
  */
 export function Confetti({ active }: { active: boolean }) {
   const [mounted, setMounted] = useState(false);
-  const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduceMotion(mq.matches);
-    const h = (e: MediaQueryListEvent) => setReduceMotion(e.matches);
-    mq.addEventListener?.("change", h);
-    return () => mq.removeEventListener?.("change", h);
-  }, []);
-
-  useEffect(() => {
-    if (!active || reduceMotion) return;
+    if (!active) return;
     setMounted(true);
     const t = setTimeout(() => setMounted(false), 1400);
     return () => clearTimeout(t);
-  }, [active, reduceMotion]);
+  }, [active]);
 
   const pieces = useMemo(() => {
     if (!mounted) return [];
@@ -51,7 +41,7 @@ export function Confetti({ active }: { active: boolean }) {
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed inset-0 z-50 overflow-hidden"
+      className="confetti pointer-events-none fixed inset-0 z-50 overflow-hidden"
     >
       {pieces.map((p) => (
         <span

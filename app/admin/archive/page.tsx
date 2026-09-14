@@ -25,7 +25,7 @@ export default async function ArchivePage() {
             ארכיון החידות
           </h1>
           <p className="puzzle-mono text-[12px] mt-1" style={{ color: "#6b6356" }}>
-            Phase 3 · Archive · {puzzles.length} puzzles
+            {puzzles.length} חידות
           </p>
         </div>
         <nav
@@ -98,14 +98,14 @@ export default async function ArchivePage() {
                   style={{ color: "#4c1d95" }}
                   aria-label={`ערוך חידה מ-${p.date}`}
                 >
-                  [edit] ✎
+                  [עריכה] ✎
                 </Link>
                 <Link
                   href={`/?date=${p.date}`}
                   className="puzzle-mono text-[12px]"
                   style={{ color: "#171412" }}
                 >
-                  [play] →
+                  [משחק] →
                 </Link>
               </div>
             </div>

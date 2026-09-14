@@ -9,7 +9,6 @@ import {
 export interface BuildPuzzleInput {
   id: string;
   date: string;
-  title: string;
   bracketString: string;
   specs: BracketSpec[];
   finalSentence: string;
@@ -31,13 +30,11 @@ export function buildPuzzle(input: BuildPuzzleInput): Puzzle {
   return {
     id: input.id,
     date: input.date,
-    title: input.title,
     finalSentence: input.finalSentence,
     historicalContext: input.historicalContext,
     tree,
     totalBrackets: bracketOrder.length,
     maxScore: input.maxScore ?? 100,
-    language: "he",
     tags: input.tags ?? [],
     difficulty: input.difficulty,
   };
@@ -46,13 +43,12 @@ export function buildPuzzle(input: BuildPuzzleInput): Puzzle {
 /**
  * Inverse of buildPuzzle for the editor: turns a Puzzle back into the raw
  * fields the builder UI works with (bracket string + per-bracket specs in
- * DFS order). Useful for "edit existing riddle" flows.
+ * order of appearance). Useful for "edit existing riddle" flows.
  */
 export function puzzleToBuildInput(puzzle: Puzzle): BuildPuzzleInput {
   return {
     id: puzzle.id,
     date: puzzle.date,
-    title: puzzle.title,
     finalSentence: puzzle.finalSentence,
     historicalContext: puzzle.historicalContext,
     bracketString: serializeTreeToBracketString(puzzle.tree),
@@ -61,7 +57,6 @@ export function puzzleToBuildInput(puzzle: Puzzle): BuildPuzzleInput {
       acceptedAnswers: n.acceptedAnswers,
       clueType: n.clueType,
       difficulty: n.difficulty,
-      hint: n.hint,
     })),
     tags: puzzle.tags,
     maxScore: puzzle.maxScore,

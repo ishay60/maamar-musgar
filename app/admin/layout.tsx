@@ -41,7 +41,7 @@ function LoginForm({ failed }: { failed: boolean }) {
           className="rounded-md px-3 py-2 puzzle-mono text-[12px]"
           style={{ backgroundColor: "#171412", color: "#fbfaf4" }}
         >
-          [enter]
+          [כניסה]
         </button>
       </form>
     </main>

@@ -6,7 +6,6 @@ import {
   buildPuzzle,
   parseBracketString,
   puzzleToBuildInput,
-  serializePuzzleForExport,
   validatePuzzleAuthoring,
 } from "@/lib/puzzle";
 import type { BracketSpec, BuildPuzzleInput, Difficulty, Puzzle } from "@/lib/puzzle";
@@ -16,27 +15,8 @@ import type { AnswerRow } from "./AnswersTable";
 import { EventSuggestions } from "./EventSuggestions";
 import { GameContainerPreview } from "./GameContainerPreview";
 import { TreeView } from "./TreeView";
-import { shiftDay, todayISO } from "@/lib/calendar";
-
-const STARTER = {
-  title: "חידת בניין לדוגמה",
-  date: todayISO(),
-  finalSentence: "דוד בן גוריון הכריז על הקמת מדינת ישראל",
-  historicalContext:
-    "ב-14 במאי 1948 הוכרזה מדינת ישראל במוזיאון תל אביב ברחוב רוטשילד.",
-  bracketString:
-    "[[מלך ישראל הקדום] [מילת יחס לבן] [שם משפחתו של ראש הממשלה הראשון]] [פועל: הצהיר פומבית] על [שם פעולה של התחלת קיום, בסמיכות] [יחידה ריבונית של עם, בסמיכות] [המדינה היהודית]",
-  rows: [
-    { answer: "דוד בן גוריון", accepted: "", difficulty: "easy", clueType: "trivia" },
-    { answer: "דוד", accepted: "", difficulty: "easy", clueType: "trivia" },
-    { answer: "בן", accepted: "", difficulty: "easy", clueType: "definition" },
-    { answer: "גוריון", accepted: "", difficulty: "medium", clueType: "trivia" },
-    { answer: "הכריז", accepted: "", difficulty: "medium", clueType: "definition" },
-    { answer: "הקמת", accepted: "", difficulty: "medium", clueType: "definition" },
-    { answer: "מדינת", accepted: "", difficulty: "easy", clueType: "definition" },
-    { answer: "ישראל", accepted: "", difficulty: "easy", clueType: "trivia" },
-  ] as AnswerRow[],
-};
+import { shiftDay } from "@/lib/calendar";
+import { todayInIsrael } from "@/lib/puzzle/puzzles";
 
 export function PuzzleBuilder({
   initialDate,
@@ -48,23 +28,16 @@ export function PuzzleBuilder({
   const seed = initialPuzzle ? puzzleToSeed(initialPuzzle) : null;
   const editingId = initialPuzzle?.id ?? null;
 
-  const [title, setTitle] = useState(seed?.title ?? STARTER.title);
-  const [date, setDate] = useState(seed?.date ?? initialDate ?? STARTER.date);
-  const [finalSentence, setFinalSentence] = useState(
-    seed?.finalSentence ?? STARTER.finalSentence,
-  );
-  const [historicalContext, setHistoricalContext] = useState(
-    seed?.historicalContext ?? STARTER.historicalContext,
-  );
-  const [tags] = useState<string[]>(initialPuzzle?.tags ?? []);
-  const [maxScore] = useState<number | undefined>(initialPuzzle?.maxScore);
+  const [date, setDate] = useState(seed?.date ?? initialDate ?? todayInIsrael());
+  const [finalSentence, setFinalSentence] = useState(seed?.finalSentence ?? "");
+  const [historicalContext, setHistoricalContext] = useState(seed?.historicalContext ?? "");
+  const tags = initialPuzzle?.tags;
+  const maxScore = initialPuzzle?.maxScore;
   const [difficulty, setDifficulty] = useState<Difficulty | "">(
     initialPuzzle?.difficulty ?? "",
   );
-  const [bracketString, setBracketString] = useState(
-    seed?.bracketString ?? STARTER.bracketString,
-  );
-  const [rows, setRows] = useState<AnswerRow[]>(seed?.rows ?? STARTER.rows);
+  const [bracketString, setBracketString] = useState(seed?.bracketString ?? "");
+  const [rows, setRows] = useState<AnswerRow[]>(seed?.rows ?? []);
 
   const parsed = useMemo(() => {
     try {
@@ -113,7 +86,6 @@ export function PuzzleBuilder({
     () => ({
       id: editingId ?? `he-${date}`,
       date,
-      title,
       finalSentence,
       historicalContext,
       bracketString,
@@ -125,7 +97,6 @@ export function PuzzleBuilder({
     [
       editingId,
       date,
-      title,
       finalSentence,
       historicalContext,
       bracketString,
@@ -156,7 +127,7 @@ export function PuzzleBuilder({
             מאמר מוסגר · סטודיו החידות
           </h1>
           <p className="puzzle-mono text-[12px] mt-1" style={{ color: "#6b6356" }}>
-            {editingId ? `Editing · ${editingId}` : "Phase 3 · Puzzle Builder"}
+            {editingId ? `עריכה · ${editingId}` : "חידה חדשה"}
           </p>
         </div>
         <nav className="puzzle-mono text-[13px] flex items-center gap-3" style={{ color: "#6b6356" }}>
@@ -178,9 +149,6 @@ export function PuzzleBuilder({
         <section className="space-y-4">
           <Card title="מטא־דאטה">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Field label="כותרת">
-                <TextInput value={title} onChange={setTitle} />
-              </Field>
               <Field label="תאריך (ISO)">
                 <div className="flex items-center gap-2">
                   <DayLink iso={shiftDay(date, -1)} label="◀ יום קודם" />
@@ -220,11 +188,11 @@ export function PuzzleBuilder({
               placeholder="כתבו את המשפט עם סוגרי רמז. לדוגמה: [מלך ישראל] המלך [פועל] ב[עיר]"
             />
             <div className="puzzle-mono text-[11px] mt-1" style={{ color: "#6b6356" }}>
-              {validation.bracketCount} סוגרים · DFS
+              {validation.bracketCount} סוגרים (לפי סדר הופעה)
             </div>
           </Card>
 
-          <Card title="תשובות וקושי (בסדר DFS)">
+          <Card title="תשובות וקושי (לפי סדר הופעה)">
             <AnswersTable
               brackets={parsed?.bracketOrder ?? []}
               rows={rows}
@@ -412,7 +380,7 @@ function ValidationPanel({ validation }: { validation: ReturnType<typeof validat
               }}
             >
               <span style={{ fontWeight: 700 }}>
-                {i.severity === "error" ? "ERR" : "WARN"}
+                {i.severity === "error" ? "שגיאה" : "אזהרה"}
               </span>{" "}
               [{i.code}] {i.message}
             </li>
@@ -437,7 +405,7 @@ function ExportPanel({
     | { status: "saved"; message: string }
     | { status: "error"; message: string }
   >({ status: "idle" });
-  const json = puzzle ? serializePuzzleForExport(puzzle) : "// תקנו שגיאות לפני ייצוא";
+  const json = puzzle ? JSON.stringify(buildInput, null, 2) : "// תקנו שגיאות לפני ייצוא";
 
   useEffect(() => {
     setSaveState({ status: "idle" });
@@ -500,7 +468,7 @@ function ExportPanel({
           className="px-3 py-1.5 rounded-md puzzle-mono text-[12px] disabled:opacity-40"
           style={{ backgroundColor: "#047857", color: "#ecfdf5" }}
         >
-          {saveState.status === "saving" ? "שומר..." : "[save]"}
+          {saveState.status === "saving" ? "שומר..." : "[שמירה]"}
         </button>
         <button
           type="button"
@@ -509,7 +477,7 @@ function ExportPanel({
           className="px-3 py-1.5 rounded-md puzzle-mono text-[12px] disabled:opacity-40"
           style={{ backgroundColor: "#171412", color: "#fbfaf4" }}
         >
-          {copied === "json" ? "✓ הועתק" : "[copy JSON]"}
+          {copied === "json" ? "✓ הועתק" : "[העתקת JSON]"}
         </button>
       </div>
       {saveState.status === "saved" || saveState.status === "error" ? (
@@ -548,7 +516,6 @@ function DayLink({ iso, label }: { iso: string; label: string }) {
 function puzzleToSeed(puzzle: Puzzle) {
   const input = puzzleToBuildInput(puzzle);
   return {
-    title: input.title,
     date: input.date,
     finalSentence: input.finalSentence,
     historicalContext: input.historicalContext ?? "",

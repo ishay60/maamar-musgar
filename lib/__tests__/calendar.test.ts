@@ -23,11 +23,6 @@ describe("parseMonth", () => {
     expect(parseMonth("2026-00")).toBeNull();
     expect(parseMonth("2026-04-01")).toBeNull();
   });
-
-  it("accepts array form by picking the first element", () => {
-    expect(parseMonth(["2026-04", "2026-05"])).toEqual({ year: 2026, month: 4 });
-    expect(parseMonth([])).toBeNull();
-  });
 });
 
 describe("monthOf / monthKey", () => {

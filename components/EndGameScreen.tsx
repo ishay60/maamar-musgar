@@ -33,29 +33,20 @@ export function EndGameScreen({
     () => buildShareText(puzzle, game.game, { finalScore: score.finalScore, rankLabel, streak }),
     [puzzle, game.game, score.finalScore, rankLabel, streak],
   );
-  const previewText = useMemo(
-    () =>
-      buildShareText(
-        puzzle,
-        game.game,
-        { finalScore: score.finalScore, rankLabel, streak },
-        { includeLink: false },
-      ),
-    [puzzle, game.game, score.finalScore, rankLabel, streak],
-  );
 
   const [copied, setCopied] = useState(false);
   const share = async () => {
+    const text = `${shareText}\nשחקו גם: ${window.location.origin}/?date=${puzzle.date}`;
     try {
-      if (typeof navigator !== "undefined" && "share" in navigator) {
-        await (navigator as any).share({ text: shareText });
+      if ("share" in navigator) {
+        await navigator.share({ text });
         return;
       }
     } catch {
       /* user dismissed */
     }
     try {
-      await navigator.clipboard.writeText(shareText);
+      await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {
@@ -152,7 +143,7 @@ export function EndGameScreen({
         style={{ backgroundColor: "#ffffff", border: "1px solid #e7e0d0" }}
         aria-label="גריד שיתוף"
       >
-        {previewText}
+        {shareText}
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2 justify-end">

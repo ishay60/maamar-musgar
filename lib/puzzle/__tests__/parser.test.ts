@@ -40,7 +40,6 @@ describe("buildPuzzle + reconstruct", () => {
     const p = buildPuzzle({
       id: "t",
       date: "2026-01-01",
-      title: "t",
       finalSentence: "דוד המלך שלט בירושלים",
       bracketString: "[a] המלך [b] ב[c]",
       specs: [{ answer: "דוד" }, { answer: "שלט" }, { answer: "ירושלים" }],
@@ -53,7 +52,6 @@ describe("buildPuzzle + reconstruct", () => {
     const p = buildPuzzle({
       id: "t",
       date: "2026-01-01",
-      title: "t",
       finalSentence: "ירושלים",
       bracketString: "[outer [inner]]",
       specs: [{ answer: "ירושלים" }, { answer: "ישראל" }],
@@ -67,7 +65,6 @@ describe("buildPuzzle + reconstruct", () => {
       buildPuzzle({
         id: "t",
         date: "2026-01-01",
-        title: "t",
         finalSentence: "WRONG",
         bracketString: "[a]",
         specs: [{ answer: "right" }],

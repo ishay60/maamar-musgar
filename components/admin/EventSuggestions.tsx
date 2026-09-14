@@ -6,6 +6,7 @@ import {
   type EventCategory,
   type HistoricalEvent,
 } from "@/lib/events/types";
+import { Empty } from "./shared";
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -72,7 +73,7 @@ export function EventSuggestions({
   }
   if (state.events.length === 0) {
     return (
-      <Empty text="אין אירועים בארכיון לתאריך זה. אפשר להוסיף ידנית ל-data/historical-events.json." />
+      <Empty text="אין אירועים לתאריך זה." />
     );
   }
 
@@ -167,22 +168,5 @@ function CategoryBadge({ category }: { category: EventCategory }) {
     >
       {EVENT_CATEGORY_LABELS[category]}
     </span>
-  );
-}
-
-function Empty({
-  text,
-  tone = "muted",
-}: {
-  text: string;
-  tone?: "muted" | "error";
-}) {
-  return (
-    <div
-      className="puzzle-mono text-[12px] text-center py-4"
-      style={{ color: tone === "error" ? "#b91c1c" : "#9ca3af" }}
-    >
-      {text}
-    </div>
   );
 }
