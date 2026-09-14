@@ -132,7 +132,7 @@ function markSolved(puzzle: Puzzle, state: GameState, node: PuzzleNode): GuessRe
 }
 
 /**
- * Bracket City accepts a typed answer for any currently solvable leaf, not only
+ * A typed answer is accepted for any currently solvable leaf, not only
  * the visually active one. Prefer the active leaf when there is ambiguity.
  */
 export function applyGuessToSolvableLeaf(

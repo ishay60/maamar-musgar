@@ -58,8 +58,7 @@ export function GameContainer({ puzzle, dates, today, studioEnabled }: GameConta
   const next = dates[idx + 1] ?? null;
 
   // Mobile drawer behavior: collapse the HUD when the player scrolls into the
-  // puzzle, restore it when scrolled back to the top — mirrors the iOS-y
-  // "URL bar hides on scroll" pattern The Atlantic uses on bracket city.
+  // puzzle, restore it when scrolled back to the top (like a browser URL bar).
   const scrollRef = useRef<HTMLDivElement>(null);
   const [headerHidden, setHeaderHidden] = useState(false);
   const onScrollPuzzle = () => {
