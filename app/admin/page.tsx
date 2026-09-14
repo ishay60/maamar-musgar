@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PuzzleBuilder } from "@/components/admin/PuzzleBuilder";
+import { todayInIsrael } from "@/lib/puzzle/puzzles";
 import { loadLivePuzzles } from "@/lib/puzzleStore";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +20,8 @@ export default async function AdminPage({
   searchParams?: { date?: string | string[]; id?: string | string[] };
 }) {
   const requestedId = pickFirst(searchParams?.id);
-  const requestedDate = pickFirst(searchParams?.date);
+  // No date in the URL means "today": open today's puzzle if it exists.
+  const requestedDate = pickFirst(searchParams?.date) ?? todayInIsrael();
   const puzzles = await loadLivePuzzles();
 
   const puzzleById = requestedId
