@@ -1,5 +1,9 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { buildPuzzle } from "./puzzle/build";
+import type { BuildPuzzleInput } from "./puzzle/build";
+import type { Puzzle } from "./puzzle/types";
+import { puzzles as builtPuzzles } from "./puzzle/puzzles";
 
 /**
  * Where data/puzzles.json lives when the admin saves.
@@ -67,4 +71,21 @@ function githubStore(token: string, repo: string, branch: string): PuzzleStore {
       return { location: `${repo}@${branch}:${FILE} (deploying)` };
     },
   };
+}
+
+/**
+ * Live puzzle list for the admin: what is in the store right now (a save is
+ * visible immediately, before the redeploy). Falls back to the built-in copy
+ * when no store is configured or it cannot be read.
+ */
+export async function loadLivePuzzles(): Promise<Puzzle[]> {
+  const raw = await puzzleStore()?.read().catch(() => null);
+  if (!raw) return builtPuzzles;
+  try {
+    return (JSON.parse(raw) as BuildPuzzleInput[])
+      .map(buildPuzzle)
+      .sort((a, b) => a.date.localeCompare(b.date));
+  } catch {
+    return builtPuzzles;
+  }
 }

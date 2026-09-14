@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { puzzles, todayInIsrael } from "@/lib/puzzle/puzzles";
+import { todayInIsrael } from "@/lib/puzzle/puzzles";
+import { loadLivePuzzles } from "@/lib/puzzleStore";
+
+export const dynamic = "force-dynamic";
 import {
   monthGrid,
   monthKey,
@@ -21,11 +24,12 @@ export const metadata: Metadata = {
  * missing coverage. The "month" is derived from the newest sample puzzle so
  * the grid is always populated during demo/seed state.
  */
-export default function CalendarPage({
+export default async function CalendarPage({
   searchParams,
 }: {
   searchParams?: { month?: string };
 }) {
+  const puzzles = await loadLivePuzzles();
   const byDate = new Map(puzzles.map((p) => [p.date, p]));
   const today = todayInIsrael();
   const focus = parseMonth(searchParams?.month) ?? monthOf(today);
