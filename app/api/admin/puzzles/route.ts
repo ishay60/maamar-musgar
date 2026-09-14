@@ -1,24 +1,25 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
-import { isAdminEnabled } from "@/lib/adminAccess";
+import { ADMIN_COOKIE, isAdminAuthed, isAdminEnabled } from "@/lib/adminAccess";
+import { puzzleStore } from "@/lib/puzzleStore";
+import type { PuzzleStore } from "@/lib/puzzleStore";
 import { buildPuzzle } from "@/lib/puzzle/build";
 import type { BuildPuzzleInput } from "@/lib/puzzle/build";
 import type { ClueType, Difficulty } from "@/lib/puzzle/types";
 
 export const dynamic = "force-dynamic";
 
-const DATA_FILE = path.join(process.cwd(), "data", "puzzles.json");
-
 export async function POST(request: NextRequest) {
   if (!isAdminEnabled()) {
     return NextResponse.json({ ok: false, error: "Not found." }, { status: 404 });
   }
-
-  if (process.env.NODE_ENV !== "development") {
+  if (!isAdminAuthed(request.cookies.get(ADMIN_COOKIE)?.value)) {
+    return NextResponse.json({ ok: false, error: "Unauthorized." }, { status: 401 });
+  }
+  const store = puzzleStore();
+  if (!store) {
     return NextResponse.json(
-      { ok: false, error: "Puzzle saving is only enabled in development." },
-      { status: 403 },
+      { ok: false, error: "No puzzle store configured (set GITHUB_TOKEN and GITHUB_REPO)." },
+      { status: 503 },
     );
   }
 
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const saved = await readSavedPuzzleInputs();
+  const saved = await readSavedPuzzleInputs(store);
   if (saved.some((p) => p.id !== input.id && p.date === input.date)) {
     return NextResponse.json(
       { ok: false, error: `Another puzzle already owns date ${input.date}.` },
@@ -53,28 +54,27 @@ export async function POST(request: NextRequest) {
   }
   next.sort((a, b) => a.date.localeCompare(b.date));
 
-  await mkdir(path.dirname(DATA_FILE), { recursive: true });
-  await writeFile(DATA_FILE, `${JSON.stringify(next, null, 2)}\n`, "utf8");
+  let location: string;
+  try {
+    ({ location } = await store.write(
+      `${JSON.stringify(next, null, 2)}\n`,
+      `puzzle: ${idx >= 0 ? "update" : "add"} ${input.id} (${input.date})`,
+    ));
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: error instanceof Error ? error.message : "Save failed." },
+      { status: 502 },
+    );
+  }
 
-  return NextResponse.json({
-    ok: true,
-    id: input.id,
-    date: input.date,
-    count: next.length,
-    path: "data/puzzles.json",
-  });
+  return NextResponse.json({ ok: true, id: input.id, date: input.date, count: next.length, path: location });
 }
 
-async function readSavedPuzzleInputs(): Promise<BuildPuzzleInput[]> {
-  try {
-    const raw = await readFile(DATA_FILE, "utf8");
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.map(parseBuildPuzzleInput);
-  } catch (error) {
-    if (isNodeError(error) && error.code === "ENOENT") return [];
-    throw error;
-  }
+async function readSavedPuzzleInputs(store: PuzzleStore): Promise<BuildPuzzleInput[]> {
+  const raw = await store.read();
+  if (!raw) return [];
+  const parsed = JSON.parse(raw);
+  return Array.isArray(parsed) ? parsed.map(parseBuildPuzzleInput) : [];
 }
 
 function parseBuildPuzzleInput(value: unknown): BuildPuzzleInput {
@@ -143,8 +143,4 @@ function requiredString(value: unknown, field: string): string {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
-}
-
-function isNodeError(error: unknown): error is NodeJS.ErrnoException {
-  return error instanceof Error && "code" in error;
 }
