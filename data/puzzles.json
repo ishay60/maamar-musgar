@@ -382,7 +382,7 @@
   {
     "id": "he-2026-09-14",
     "date": "2026-09-14",
-    "bracketString": "ב[חבילת _ לחייל]ר ג'ומאיל, הנ[כששוברים אותו-טוב לשובר] הנבחר [מהקצרים בכינויי הקניין] [כריסטיאן ברנרד היה משתילו][עם שפם או תם בים], נר[[ארגון בינלאומי שהוקם עקב ועידת סאן פרנסיסקו]רים על [טעמו של השוקולד הקפה והכינין]ק זך [במקרא, ולד הצאן]וא כך] ב[_לבי בת גרב]י[אם סבו של הוד מעלתו]",
+    "bracketString": "ב[חבילת _ לחייל]ר [מרטינסון קפה - הו שם פרטי]מ[הון או נפט], הנ[כששוברים אותו-טוב לשובר] ה[אתמול הכלב השמיע קול]ר [מהקצרים בכינויי הקניין] [כריסטיאן ברנרד היה משתילו][עם שפם או תם בים], נר[[ארגון בינלאומי שהוקם עקב ועידת סאן פרנסיסקו]רים על [טעמו של השוקולד הקפה והכינין]ק זך [במקרא, ולד הצאן]וא כך] ב[_לבי בת גרב]י[אם סבו של הוד מעלתו]",
     "specs": [
       {
         "answer": "שי",
@@ -391,25 +391,29 @@
         "difficulty": "easy"
       },
       {
-        "answer": "שיא",
-        "acceptedAnswers": [],
+        "answer": "ג׳ו",
+        "acceptedAnswers": [
+          "גו"
+        ],
         "clueType": "trivia",
         "difficulty": "easy"
       },
       {
-        "answer": "של",
-        "acceptedAnswers": [],
+        "answer": "איל",
+        "acceptedAnswers": [
+          "אייל"
+        ],
         "clueType": "definition",
         "difficulty": "easy"
       },
       {
-        "answer": "לב",
+        "answer": "שיא",
         "acceptedAnswers": [],
         "clueType": "trivia",
         "difficulty": "medium"
       },
       {
-        "answer": "נון",
+        "answer": "נבח",
         "acceptedAnswers": [
           "נונ"
         ],
@@ -417,27 +421,39 @@
         "difficulty": "medium"
       },
       {
-        "answer": "צח",
+        "answer": "של",
         "acceptedAnswers": [],
         "clueType": "definition",
         "difficulty": "medium"
       },
       {
-        "answer": "אומ",
+        "answer": "לב",
+        "acceptedAnswers": [],
+        "clueType": "definition",
+        "difficulty": "easy"
+      },
+      {
+        "answer": "נון",
+        "acceptedAnswers": [],
+        "clueType": "trivia",
+        "difficulty": "easy"
+      },
+      {
+        "answer": "צח",
+        "acceptedAnswers": []
+      },
+      {
+        "answer": "אום",
         "acceptedAnswers": [
           "או״ם",
           "אום",
           "האומות המאוחדות",
           "אומות מאוחדות"
-        ],
-        "clueType": "definition",
-        "difficulty": "easy"
+        ]
       },
       {
         "answer": "מר",
-        "acceptedAnswers": [],
-        "clueType": "trivia",
-        "difficulty": "easy"
+        "acceptedAnswers": []
       },
       {
         "answer": "שה",
@@ -452,8 +468,9 @@
         "acceptedAnswers": []
       }
     ],
-    "finalSentence": "בשיר ג'ומאיל, הנשיא הנבחר של לבנון, נרצח בביירות",
+    "finalSentence": "בשיר ג׳ומאיל, הנשיא הנבחר של לבנון, נרצח בביירות",
     "historicalContext": "בשיר ג'ומייל, הנשיא הנבחר של לבנון, נרצח בביירות (1982). הרצח, במהלך מלחמת לבנון הראשונה, הוביל לכניסת צה\"ל למערב ביירות.",
+    "maxScore": 100,
     "tags": []
   }
 ]
