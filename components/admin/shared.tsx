@@ -10,8 +10,7 @@ export function clueSummary(node: PuzzleNode): string {
 export function Empty({ text, tone = "muted" }: { text: string; tone?: "muted" | "error" }) {
   return (
     <div
-      className="puzzle-mono text-[12px] text-center py-4"
-      style={{ color: tone === "error" ? "#b91c1c" : "#9ca3af" }}
+      className={`puzzle-mono text-[12px] text-center py-4 ${tone === "error" ? "text-red-700" : "text-gray-400"}`}
     >
       {text}
     </div>

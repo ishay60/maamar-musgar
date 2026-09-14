@@ -48,36 +48,31 @@ export function AnswersTable({
         return (
           <div
             key={node.id}
-            className="rounded-md p-3 grid grid-cols-1 sm:grid-cols-[28px_1fr_1fr_120px_120px] gap-2 items-start"
-            style={{ backgroundColor: "#fbfaf4", border: "1px solid #e7e0d0" }}
+            className="rounded-md p-3 grid grid-cols-1 sm:grid-cols-[28px_1fr_1fr_120px_120px] gap-2 items-start bg-paper border border-line"
           >
             <div
-              className="puzzle-mono text-[12px] rounded-sm px-1 text-center"
-              style={{ backgroundColor: "#ede9fe", color: "#4c1d95" }}
+              className="puzzle-mono text-[12px] rounded-sm px-1 text-center bg-violet-100 text-violet-900"
               title={`סוגר ${idx} (לפי סדר הופעה)`}
             >
               {idx}
             </div>
             <div
-              className="text-[13px] leading-snug"
-              style={{ color: "#374151", fontFamily: '"David Libre", serif' }}
+              className="text-[13px] leading-snug text-gray-700 font-hebrew"
             >
-              {summary || <span style={{ opacity: 0.4 }}>(ריק)</span>}
+              {summary || <span className="opacity-40">(ריק)</span>}
             </div>
             <input
               type="text"
-              dir="auto"
+              dir="rtl"
               value={row.answer}
               onChange={(e) => update(idx, { answer: e.target.value })}
               placeholder="תשובה"
-              className="rounded-md px-2 py-1 text-[13px] puzzle-mono"
-              style={{ border: "1px solid #e7e0d0", backgroundColor: "#ffffff" }}
+              className="rounded-md px-2 py-1 text-[13px] puzzle-mono border border-line bg-white"
             />
             <select
               value={row.difficulty}
               onChange={(e) => update(idx, { difficulty: e.target.value as AnswerRow["difficulty"] })}
-              className="rounded-md px-2 py-1 text-[12px] puzzle-mono"
-              style={{ border: "1px solid #e7e0d0", backgroundColor: "#ffffff" }}
+              className="rounded-md px-2 py-1 text-[12px] puzzle-mono border border-line bg-white"
               aria-label="קושי"
             >
               <option value="">קושי</option>
@@ -88,8 +83,7 @@ export function AnswersTable({
             <select
               value={row.clueType}
               onChange={(e) => update(idx, { clueType: e.target.value as AnswerRow["clueType"] })}
-              className="rounded-md px-2 py-1 text-[12px] puzzle-mono"
-              style={{ border: "1px solid #e7e0d0", backgroundColor: "#ffffff" }}
+              className="rounded-md px-2 py-1 text-[12px] puzzle-mono border border-line bg-white"
               aria-label="סוג רמז"
             >
               <option value="">סוג רמז</option>
@@ -102,12 +96,11 @@ export function AnswersTable({
             <div className="sm:col-span-5">
               <input
                 type="text"
-                dir="auto"
+                dir="rtl"
                 value={row.accepted}
                 onChange={(e) => update(idx, { accepted: e.target.value })}
                 placeholder="תשובות חלופיות מקובלות (מופרדות בפסיק, אופציונלי)"
-                className="w-full rounded-md px-2 py-1 text-[12px] puzzle-mono"
-                style={{ border: "1px solid #e7e0d0", backgroundColor: "#ffffff" }}
+                className="w-full rounded-md px-2 py-1 text-[12px] puzzle-mono border border-line bg-white"
               />
             </div>
           </div>

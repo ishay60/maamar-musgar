@@ -30,10 +30,10 @@ export function TreeView({
       rows.push(
         <div
           key={`t-${rows.length}`}
-          className="puzzle-mono text-[12px] whitespace-pre-wrap"
-          style={{ paddingInlineStart: depth * 14, color: "#9ca3af" }}
+          className="puzzle-mono text-[12px] whitespace-pre-wrap text-gray-400"
+          style={{ paddingInlineStart: depth * 14 }}
         >
-          <span style={{ opacity: 0.7 }}>·</span> {content}
+          <span className="opacity-70">·</span> {content}
         </div>,
       );
       return;
@@ -49,21 +49,16 @@ export function TreeView({
         style={{ paddingInlineStart: depth * 14 }}
       >
         <span
-          className="inline-block rounded-sm px-1"
-          style={{ backgroundColor: "#ede9fe", color: "#4c1d95", minWidth: 28, textAlign: "center" }}
+          className="inline-block rounded-sm px-1 min-w-[28px] text-center bg-violet-100 text-violet-900"
         >
           {idx}
         </span>
-        <span className="flex-1 truncate" style={{ color: "#374151" }} title={summary}>
-          {summary || <span style={{ opacity: 0.4 }}>[ריק]</span>}
+        <span className="flex-1 truncate text-gray-700" title={summary}>
+          {summary || <span className="opacity-40">[ריק]</span>}
         </span>
-        <span style={{ color: "#6b6356" }}>→</span>
+        <span className="text-muted">→</span>
         <span
-          style={{
-            color: answer ? "#065f46" : "#b45309",
-            fontWeight: 600,
-            minWidth: 60,
-          }}
+          className={`font-semibold min-w-[60px] ${answer ? "text-emerald-800" : "text-amber-700"}`}
         >
           {answer || "חסר"}
         </span>
