@@ -462,9 +462,15 @@ function ExportPanel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(buildInput),
       });
-      const payload = (await response.json()) as { ok?: boolean; error?: string; path?: string };
+      const text = await response.text();
+      let payload: { ok?: boolean; error?: string; path?: string } = {};
+      try {
+        payload = JSON.parse(text);
+      } catch {
+        throw new Error(`השרת החזיר ${response.status} ללא JSON: ${text.slice(0, 200) || "(ריק)"}`);
+      }
       if (!response.ok || !payload.ok) {
-        throw new Error(payload.error ?? "שמירה נכשלה");
+        throw new Error(payload.error ?? `שמירה נכשלה (${response.status})`);
       }
       setSaveState({ status: "saved", message: `נשמר אל ${payload.path ?? "data/puzzles.json"}` });
     } catch (error) {
