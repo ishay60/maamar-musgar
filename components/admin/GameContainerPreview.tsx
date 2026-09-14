@@ -40,6 +40,8 @@ export function GameContainerPreview({ puzzle }: { puzzle: Puzzle }) {
     return () => {
       if (tRef.current) clearTimeout(tRef.current);
     };
+    // `game` is a fresh object every render; listing it would re-arm the timer each tick.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoSolving, game.complete, game.solvableLeaves, game.game.activeNodeId]);
 
   useEffect(
