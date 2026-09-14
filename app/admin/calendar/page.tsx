@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { puzzles } from "@/lib/puzzle/puzzles";
+import { puzzles, todayInIsrael } from "@/lib/puzzle/puzzles";
 import {
   monthGrid,
   monthKey,
   monthOf,
   parseMonth,
   stepMonth,
-  todayISO,
 } from "@/lib/calendar";
 
 export const metadata: Metadata = {
@@ -28,8 +27,8 @@ export default function CalendarPage({
   searchParams?: { month?: string };
 }) {
   const byDate = new Map(puzzles.map((p) => [p.date, p]));
-  const sorted = [...puzzles].sort((a, b) => b.date.localeCompare(a.date));
-  const focus = parseMonth(searchParams?.month) ?? monthOf(sorted[0]?.date ?? todayISO());
+  const today = todayInIsrael();
+  const focus = parseMonth(searchParams?.month) ?? monthOf(today);
   const { year, month } = focus;
   const days = monthGrid(focus);
   const heMonth = new Date(year, month - 1, 1).toLocaleDateString("he-IL", {
@@ -123,7 +122,17 @@ export default function CalendarPage({
             : puzzle
             ? "published"
             : "gap";
-          return <DayCell key={d.iso} iso={d.iso} day={d.day} status={status} puzzleTitle={puzzle?.finalSentence} brackets={puzzle?.totalBrackets} />;
+          return (
+            <DayCell
+              key={d.iso}
+              iso={d.iso}
+              day={d.day}
+              status={status}
+              isToday={d.iso === today}
+              puzzleTitle={puzzle?.finalSentence}
+              brackets={puzzle?.totalBrackets}
+            />
+          );
         })}
       </div>
 
@@ -138,17 +147,20 @@ function DayCell({
   iso,
   day,
   status,
+  isToday,
   puzzleTitle,
   brackets,
 }: {
   iso: string;
   day: number;
   status: CellStatus;
+  isToday: boolean;
   puzzleTitle?: string;
   brackets?: number;
 }) {
   const base =
-    "relative rounded-md min-h-[78px] p-2 text-right border transition-colors";
+    "relative rounded-md min-h-[78px] p-2 text-right border transition-colors" +
+    (isToday ? " ring-2 ring-[#171412] ring-offset-1" : "");
   if (status === "outside") {
     return (
       <div
@@ -165,11 +177,11 @@ function DayCell({
   if (status === "published") {
     return (
       <Link
-        href={`/?date=${iso}`}
+        href={`/admin?date=${iso}`}
         className={base + " hover:shadow-sm"}
         style={{ borderColor: "#86efac", backgroundColor: "#ecfdf5" }}
         role="gridcell"
-        aria-label={`${iso} — פורסם: ${puzzleTitle ?? ""}`}
+        aria-label={`${iso} — פורסם, לחצו לעריכה: ${puzzleTitle ?? ""}`}
       >
         <div className="flex items-center justify-between">
           <span

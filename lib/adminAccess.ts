@@ -1,6 +1,7 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 
 export const ADMIN_COOKIE = "admin_session";
+export const LOGIN_FAILED_COOKIE = "admin_login_failed";
 
 type Env = Record<string, string | undefined>;
 
@@ -13,11 +14,12 @@ export function isAdminEnabled(env: Env = process.env): boolean {
 export function isAdminAuthed(cookieValue: string | undefined, env: Env = process.env): boolean {
   if (env.WORKSPACE === "local") return true;
   if (!env.ADMIN_PASSWORD || !cookieValue) return false;
-  return safeEqual(cookieValue, sessionToken(env.ADMIN_PASSWORD));
+  return safeEqual(cookieValue, sessionToken(env.ADMIN_PASSWORD.trim()));
 }
 
 export function checkPassword(candidate: string, env: Env = process.env): boolean {
-  return !!env.ADMIN_PASSWORD && safeEqual(candidate, env.ADMIN_PASSWORD);
+  const expected = env.ADMIN_PASSWORD?.trim();
+  return !!expected && safeEqual(candidate.trim(), expected);
 }
 
 /** Cookie value: a hash of the password, so the password itself never sits in the browser. */
