@@ -389,59 +389,76 @@
     "id": "he-2026-09-14",
     "date": "2026-09-14",
     "title": "חידת בניין לדוגמה",
-    "bracketString": "[[מלך ישראל הקדום] [מילת יחס לבן] [שם משפחתו של ראש הממשלה הראשון]] [פועל: הצהיר פומבית] על [שם פעולה של התחלת קיום, בסמיכות] [יחידה ריבונית של עם, בסמיכות] [המדינה היהודית]",
+    "bracketString": "ב[חבילת _ לחייל]ר ג'ומאיל, הנ[כששוברים אותו-טוב לשובר] הנבחר [מהקצרים בכינויי הקניין] [כריסטיאן ברנרד היה משתילו][עם שפם או תם בים], נר[[ארגון בינלאומי שהוקם עקב ועידת סאן פרנסיסקו]רים על [טעמו של השוקולד הקפה והכינין]ק זך [במקרא, ולד הצאן]וא כך] ב[_לבי בת גרב]י[כאן אם סבו של הוד מעלתו, האם שומע, רד מהקשר!]",
     "specs": [
       {
-        "answer": "דוד בן גוריון",
+        "answer": "שי",
         "acceptedAnswers": [],
         "clueType": "trivia",
         "difficulty": "easy"
       },
       {
-        "answer": "דוד",
+        "answer": "שיא",
         "acceptedAnswers": [],
         "clueType": "trivia",
         "difficulty": "easy"
       },
       {
-        "answer": "בן",
+        "answer": "של",
         "acceptedAnswers": [],
         "clueType": "definition",
         "difficulty": "easy"
       },
       {
-        "answer": "גוריון",
+        "answer": "לב",
         "acceptedAnswers": [],
         "clueType": "trivia",
         "difficulty": "medium"
       },
       {
-        "answer": "הכריז",
+        "answer": "נון",
         "acceptedAnswers": [],
         "clueType": "definition",
         "difficulty": "medium"
       },
       {
-        "answer": "הקמת",
+        "answer": "צח",
         "acceptedAnswers": [],
         "clueType": "definition",
         "difficulty": "medium"
       },
       {
-        "answer": "מדינת",
-        "acceptedAnswers": [],
+        "answer": "אומ",
+        "acceptedAnswers": [
+          "או״ם",
+          "אום",
+          "האומות המאוחדות",
+          "אומות מאוחדות"
+        ],
         "clueType": "definition",
         "difficulty": "easy"
       },
       {
-        "answer": "ישראל",
+        "answer": "מר",
         "acceptedAnswers": [],
         "clueType": "trivia",
         "difficulty": "easy"
+      },
+      {
+        "answer": "שה",
+        "acceptedAnswers": []
+      },
+      {
+        "answer": "בי",
+        "acceptedAnswers": []
+      },
+      {
+        "answer": "רות",
+        "acceptedAnswers": []
       }
     ],
-    "finalSentence": "דוד בן גוריון הכריז על הקמת מדינת ישראל",
-    "historicalContext": "ב-14 במאי 1948 הוכרזה מדינת ישראל במוזיאון תל אביב ברחוב רוטשילד.",
+    "finalSentence": "בשיר ג'ומאיל, הנשיא הנבחר של לבנון, נרצח בביירות",
+    "historicalContext": "בשיר ג'ומייל, הנשיא הנבחר של לבנון, נרצח בביירות (1982). הרצח, במהלך מלחמת לבנון הראשונה, הוביל לכניסת צה\"ל למערב ביירות.",
     "tags": []
   }
 ]
