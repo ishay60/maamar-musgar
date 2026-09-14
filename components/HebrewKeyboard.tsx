@@ -1,16 +1,18 @@
 "use client";
 
 /**
- * Hebrew on-screen keyboard for mobile, laid out like the iPhone Hebrew
- * keyboard so thumbs already know where every letter is:
+ * Hebrew on-screen keyboard for mobile, a copy of the iPhone Hebrew keyboard
+ * so thumbs already know where every letter is. iOS draws it visually
+ * left-to-right (ק is the leftmost key), so the rows below are written in
+ * screen order and the container is `dir="ltr"`:
  *
- *   row 1:  ק ר א ט ו ן ם פ            (8 keys, stretched to full width)
- *   row 2:  ש ד ג כ ע י ח ל ך ף        (10 keys)
- *   row 3:  ז ס ב ה נ מ צ ת ץ  ⌫       (9 keys + delete on the left edge)
- *   row 4:  ↵  ─────── רווח ───────    (return on the left edge, like iOS)
+ *   row 1:  ק ר א ט ו ן ם פ ⌫        (8 keys + delete on the right)
+ *   row 2:  ש ד ג כ ע י ח ל ך ף       (10 keys, full width)
+ *   row 3:    ז ס ב ה נ מ צ ת ץ       (9 keys, centered)
+ *   row 4:  ─────── רווח ───────  ↵   (space, return on the right)
  *
- * Every row is a CSS grid spanning the full width, so keys in a row are all
- * the same size and rows line up on both edges instead of drifting.
+ * Every letter key is the same fixed width (a tenth of the row), and rows
+ * are centered, so nothing drifts.
  *
  * Final letters (sofiot) sit where iOS puts them — `normalizeHebrew` folds
  * them when matching, so כ for a word ending in ך is still accepted.
@@ -43,16 +45,14 @@ export function HebrewKeyboard({ disabled, onChar, onBackspace, onEnter }: Props
 
   return (
     <div
-      dir="rtl"
+      dir="ltr"
       className="keyboard select-none"
       role="group"
       aria-label="מקלדת עברית"
       aria-disabled={disabled || undefined}
     >
-      <div className="keyboard-row keyboard-row-1">{ROW_1.map(letterBtn)}</div>
-      <div className="keyboard-row keyboard-row-2">{ROW_2.map(letterBtn)}</div>
-      <div className="keyboard-row keyboard-row-3">
-        {ROW_3.map(letterBtn)}
+      <div className="keyboard-row">
+        {ROW_1.map(letterBtn)}
         <button
           type="button"
           onClick={onBackspace}
@@ -63,7 +63,9 @@ export function HebrewKeyboard({ disabled, onChar, onBackspace, onEnter }: Props
           ⌫
         </button>
       </div>
-      <div className="keyboard-row keyboard-row-4">
+      <div className="keyboard-row">{ROW_2.map(letterBtn)}</div>
+      <div className="keyboard-row">{ROW_3.map(letterBtn)}</div>
+      <div className="keyboard-row">
         <button
           type="button"
           onClick={() => onChar(" ")}

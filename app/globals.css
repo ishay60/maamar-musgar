@@ -69,28 +69,29 @@ input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 }
 
 /* Hebrew on-screen keyboard — used on small screens where typing Hebrew
- * with a non-Hebrew system layout is hard. Rows are grids that span the
- * full width, iPhone-style: every key in a row is the same width and rows
- * line up on both edges.
+ * with a non-Hebrew system layout is hard. Mirrors the iPhone Hebrew
+ * keyboard: every letter key is a tenth of the row width, rows are centered,
+ * delete sits at the right end of row 1, return at the right end of row 4.
  */
 .keyboard {
   --key-gap: 5px;
   --key-h: 42px;
+  /* ten keys + nine gaps fill the row exactly */
+  --key-w: calc((100% - 9 * var(--key-gap)) / 10);
   display: flex;
   flex-direction: column;
   gap: 7px;
 }
 .keyboard-row {
-  display: grid;
+  display: flex;
+  justify-content: center;
   gap: var(--key-gap);
   width: 100%;
 }
-.keyboard-row-1 { grid-template-columns: repeat(8, 1fr); }
-.keyboard-row-2 { grid-template-columns: repeat(10, 1fr); }
-/* 9 letters + delete. Delete gets ~1.5 keys, like iOS. */
-.keyboard-row-3 { grid-template-columns: repeat(9, 1fr) 1.5fr; }
-/* space + return: return is ~2 keys wide, space takes the rest. */
-.keyboard-row-4 { grid-template-columns: minmax(0, 1fr) 80px; }
+.keyboard-row > .keyboard-key { flex: 0 0 var(--key-w); }
+.keyboard-row > .keyboard-key.is-backspace { flex-basis: calc(var(--key-w) * 1.5 + var(--key-gap)); }
+.keyboard-row > .keyboard-key.is-enter { flex-basis: calc(var(--key-w) * 2.5 + var(--key-gap)); }
+.keyboard-row > .keyboard-key.is-space { flex: 1 1 auto; }
 
 .keyboard-key {
   height: var(--key-h);
