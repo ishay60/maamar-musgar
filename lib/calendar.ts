@@ -47,6 +47,13 @@ export function todayISO(): string {
   return formatISO(new Date());
 }
 
+/** ISO date shifted by `delta` days. */
+export function shiftDay(iso: string, delta: number): string {
+  const d = new Date(iso + "T00:00:00");
+  d.setDate(d.getDate() + delta);
+  return formatISO(d);
+}
+
 export function stepMonth({ year, month }: YearMonth, delta: number): YearMonth {
   const d = new Date(year, month - 1 + delta, 1);
   return { year: d.getFullYear(), month: d.getMonth() + 1 };

@@ -16,7 +16,7 @@ import type { AnswerRow } from "./AnswersTable";
 import { EventSuggestions } from "./EventSuggestions";
 import { GameContainerPreview } from "./GameContainerPreview";
 import { TreeView } from "./TreeView";
-import { todayISO } from "@/lib/calendar";
+import { shiftDay, todayISO } from "@/lib/calendar";
 
 const STARTER = {
   title: "חידת בניין לדוגמה",
@@ -160,7 +160,7 @@ export function PuzzleBuilder({
           </p>
         </div>
         <nav className="puzzle-mono text-[13px] flex items-center gap-3" style={{ color: "#6b6356" }}>
-          <Link href="/admin/calendar" className="underline-offset-4 hover:underline">
+          <Link href={`/admin/calendar?month=${date.slice(0, 7)}`} className="underline-offset-4 hover:underline">
             לוח שנה →
           </Link>
           <span style={{ opacity: 0.4 }}>·</span>
@@ -182,7 +182,11 @@ export function PuzzleBuilder({
                 <TextInput value={title} onChange={setTitle} />
               </Field>
               <Field label="תאריך (ISO)">
-                <TextInput value={date} onChange={setDate} className="puzzle-mono" />
+                <div className="flex items-center gap-2">
+                  <DayLink iso={shiftDay(date, -1)} label="◀ יום קודם" />
+                  <TextInput value={date} onChange={setDate} className="puzzle-mono" />
+                  <DayLink iso={shiftDay(date, 1)} label="יום הבא ▶" />
+                </div>
               </Field>
               <Field label="רמת קושי של החידה">
                 <DifficultySelect value={difficulty} onChange={setDifficulty} />
@@ -518,6 +522,20 @@ function ExportPanel({
         {json}
       </pre>
     </section>
+  );
+}
+
+/** Jump the studio to another day's puzzle (or an empty builder for that day). */
+function DayLink({ iso, label }: { iso: string; label: string }) {
+  return (
+    <Link
+      href={`/admin?date=${iso}`}
+      className="puzzle-mono text-[11px] whitespace-nowrap underline-offset-4 hover:underline"
+      style={{ color: "#6b6356" }}
+      title={iso}
+    >
+      {label}
+    </Link>
   );
 }
 

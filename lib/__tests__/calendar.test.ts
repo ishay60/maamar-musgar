@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  shiftDay,
   formatISO,
   monthGrid,
   monthKey,
@@ -87,5 +88,12 @@ describe("monthGrid", () => {
     const grid = monthGrid({ year: 2026, month: 12 });
     const after = grid.filter((d) => !d.inMonth && d.iso > "2026-12-31");
     expect(after.every((d) => d.iso.startsWith("2027-01"))).toBe(true);
+  });
+});
+
+describe("shiftDay", () => {
+  it("crosses month and year boundaries", () => {
+    expect(shiftDay("2026-09-30", 1)).toBe("2026-10-01");
+    expect(shiftDay("2026-01-01", -1)).toBe("2025-12-31");
   });
 });
