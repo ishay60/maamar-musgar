@@ -45,27 +45,25 @@ export default async function CalendarPage({
       <header className="flex items-baseline justify-between gap-3 flex-wrap mb-6">
         <div>
           <h1
-            className="text-2xl font-bold tracking-tight"
-            style={{ fontFamily: '"David Libre", serif' }}
+            className="text-2xl font-bold tracking-tight font-hebrew"
           >
             לוח השנה של החידות
           </h1>
-          <p className="puzzle-mono text-[12px] mt-1" style={{ color: "#6b6356" }}>
+          <p className="puzzle-mono text-[12px] mt-1 text-muted">
             {published} פורסמו · {gaps} חסרים החודש
           </p>
         </div>
         <nav
-          className="puzzle-mono text-[13px] flex items-center gap-3"
-          style={{ color: "#6b6356" }}
+          className="puzzle-mono text-[13px] flex items-center gap-3 text-muted"
         >
           <Link href="/admin" className="underline-offset-4 hover:underline">
             ← סטודיו
           </Link>
-          <span style={{ opacity: 0.4 }}>·</span>
+          <span className="opacity-40">·</span>
           <Link href="/admin/archive" className="underline-offset-4 hover:underline">
             ארכיון
           </Link>
-          <span style={{ opacity: 0.4 }}>·</span>
+          <span className="opacity-40">·</span>
           <Link href="/" className="underline-offset-4 hover:underline">
             משחק
           </Link>
@@ -75,30 +73,26 @@ export default async function CalendarPage({
       <div className="flex items-center justify-between gap-3 mb-4">
         <Link
           href={`/admin/calendar?month=${monthKey(prevMonth)}`}
-          className="puzzle-mono text-[12px] px-3 py-1 rounded-md"
-          style={{ border: "1px solid #e7e0d0", color: "#171412" }}
+          className="puzzle-mono text-[12px] px-3 py-1 rounded-md border border-line text-ink"
         >
           ← חודש קודם
         </Link>
         <div
-          className="text-lg"
-          style={{ fontFamily: '"David Libre", serif' }}
+          className="text-lg font-hebrew"
           aria-live="polite"
         >
           {heMonth}
         </div>
         <Link
           href={`/admin/calendar?month=${monthKey(nextMonth)}`}
-          className="puzzle-mono text-[12px] px-3 py-1 rounded-md"
-          style={{ border: "1px solid #e7e0d0", color: "#171412" }}
+          className="puzzle-mono text-[12px] px-3 py-1 rounded-md border border-line text-ink"
         >
           חודש הבא →
         </Link>
       </div>
 
       <div
-        className="grid grid-cols-7 gap-1 text-center puzzle-mono text-[11px] mb-1"
-        style={{ color: "#6b6356" }}
+        className="grid grid-cols-7 gap-1 text-center puzzle-mono text-[11px] mb-1 text-muted"
         aria-hidden
       >
         {["א", "ב", "ג", "ד", "ה", "ו", "ש"].map((d) => (
@@ -157,16 +151,15 @@ function DayCell({
   brackets?: number;
 }) {
   const base =
-    "relative rounded-md min-h-[78px] p-2 text-right border transition-colors" +
+    "relative rounded-md min-h-[78px] p-2 text-start border transition-colors" +
     (isToday ? " ring-2 ring-[#171412] ring-offset-1" : "");
   if (status === "outside") {
     return (
       <div
-        className={base}
-        style={{ borderColor: "#f3f4f6", backgroundColor: "#fbfaf4", opacity: 0.35 }}
+        className={base + " border-gray-100 bg-paper opacity-35"}
         aria-hidden
       >
-        <div className="puzzle-mono text-[11px]" style={{ color: "#9ca3af" }}>
+        <div className="puzzle-mono text-[11px] text-gray-400">
           {day}
         </div>
       </div>
@@ -176,32 +169,29 @@ function DayCell({
     return (
       <Link
         href={`/admin?date=${iso}`}
-        className={base + " hover:shadow-sm"}
-        style={{ borderColor: "#86efac", backgroundColor: "#ecfdf5" }}
+        className={base + " border-emerald-300 bg-emerald-50 hover:shadow-sm"}
         role="gridcell"
         aria-label={`${iso} — פורסם, לחצו לעריכה: ${puzzleTitle ?? ""}`}
       >
         <div className="flex items-center justify-between">
           <span
-            className="puzzle-mono text-[10px] px-1 rounded-sm"
-            style={{ backgroundColor: "#059669", color: "#ecfdf5" }}
+            className="puzzle-mono text-[10px] px-1 rounded-sm bg-emerald-600 text-emerald-50"
           >
             ✓
           </span>
-          <span className="puzzle-mono text-[12px]" style={{ color: "#047857" }}>
+          <span className="puzzle-mono text-[12px] text-emerald-700">
             {day}
           </span>
         </div>
         {puzzleTitle ? (
           <div
-            className="text-[11px] mt-1 line-clamp-2 leading-tight"
-            style={{ color: "#065f46", fontFamily: '"David Libre", serif' }}
+            className="text-[11px] mt-1 line-clamp-2 leading-tight text-emerald-800 font-hebrew"
           >
             {puzzleTitle}
           </div>
         ) : null}
         {brackets != null ? (
-          <div className="puzzle-mono text-[10px] mt-1" style={{ color: "#047857", opacity: 0.7 }}>
+          <div className="puzzle-mono text-[10px] mt-1 text-emerald-700 opacity-70">
             {brackets} סוגרים
           </div>
         ) : null}
@@ -211,25 +201,22 @@ function DayCell({
   return (
     <Link
       href={`/admin?date=${iso}`}
-      className={base + " hover:border-[#c7d2fe]"}
-      style={{ borderColor: "#e7e0d0", backgroundColor: "#ffffff" }}
+      className={base + " border-line bg-white hover:border-indigo-200"}
       role="gridcell"
       aria-label={`${iso} — אין חידה, לחצו להוספה`}
     >
       <div className="flex items-center justify-between">
         <span
-          className="puzzle-mono text-[10px]"
-          style={{ color: "#b91c1c" }}
+          className="puzzle-mono text-[10px] text-red-700"
         >
           ✕ חסר
         </span>
-        <span className="puzzle-mono text-[12px]" style={{ color: "#6b6356" }}>
+        <span className="puzzle-mono text-[12px] text-muted">
           {day}
         </span>
       </div>
       <div
-        className="text-[11px] mt-1"
-        style={{ color: "#9ca3af", fontFamily: '"David Libre", serif' }}
+        className="text-[11px] mt-1 text-gray-400 font-hebrew"
       >
         + הוספת חידה
       </div>
@@ -240,20 +227,17 @@ function DayCell({
 function Legend() {
   return (
     <div
-      className="mt-4 puzzle-mono text-[11px] flex items-center gap-4 flex-wrap"
-      style={{ color: "#6b6356" }}
+      className="mt-4 puzzle-mono text-[11px] flex items-center gap-4 flex-wrap text-muted"
     >
       <span className="inline-flex items-center gap-1">
         <span
-          className="inline-block w-3 h-3 rounded-sm"
-          style={{ backgroundColor: "#ecfdf5", border: "1px solid #86efac" }}
+          className="inline-block w-3 h-3 rounded-sm bg-emerald-50 border border-emerald-300"
         />
         פורסם
       </span>
       <span className="inline-flex items-center gap-1">
         <span
-          className="inline-block w-3 h-3 rounded-sm"
-          style={{ backgroundColor: "#ffffff", border: "1px solid #e7e0d0" }}
+          className="inline-block w-3 h-3 rounded-sm bg-white border border-line"
         />
         חסר / להוספה
       </span>

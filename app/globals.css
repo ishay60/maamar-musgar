@@ -69,17 +69,39 @@ input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 }
 
 /* Hebrew on-screen keyboard — used on small screens where typing Hebrew
- * with a non-Hebrew system layout is hard.
+ * with a non-Hebrew system layout is hard. Rows are grids that span the
+ * full width, iPhone-style: every key in a row is the same width and rows
+ * line up on both edges.
  */
+.keyboard {
+  --key-gap: 5px;
+  --key-h: 42px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.keyboard-row {
+  display: grid;
+  gap: var(--key-gap);
+  width: 100%;
+}
+.keyboard-row-1 { grid-template-columns: repeat(8, 1fr); }
+.keyboard-row-2 { grid-template-columns: repeat(10, 1fr); }
+/* 9 letters + delete. Delete gets ~1.5 keys, like iOS. */
+.keyboard-row-3 { grid-template-columns: repeat(9, 1fr) 1.5fr; }
+/* space + return: return is ~2 keys wide, space takes the rest. */
+.keyboard-row-4 { grid-template-columns: minmax(0, 1fr) 80px; }
+
 .keyboard-key {
-  min-height: 38px;
-  padding: 0 2px;
-  border-radius: 5px;
+  height: var(--key-h);
+  padding: 0;
+  border-radius: 6px;
   background: #ffffff;
   border: 1px solid #d6cdb8;
+  box-shadow: 0 1px 0 #c9bfa8;
   color: #171412;
   font-family: "David Libre", "Frank Ruhl Libre", serif;
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1;
   display: inline-flex;
   align-items: center;
@@ -87,28 +109,29 @@ input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
-  min-width: 0; /* allow flex-1 keys to shrink to share row width */
+  min-width: 0;
 }
+.keyboard-key:disabled { opacity: 0.4; }
 @media (max-height: 700px) {
-  .keyboard-key { min-height: 32px; font-size: 16px; }
+  .keyboard { --key-h: 36px; }
+  .keyboard-key { font-size: 17px; }
 }
-.keyboard-key:active { background: #f5efe0; transform: translateY(1px); }
+.keyboard-key:active { background: #f5efe0; transform: translateY(1px); box-shadow: none; }
 /* Modifier keys: a touch dimmer so the letters read as the primary surface */
 .keyboard-key.is-special {
   background: #f0e9d8;
   font-family: "IBM Plex Mono", Menlo, ui-monospace, monospace;
-  font-size: 16px;
+  font-size: 17px;
   color: #3d362b;
 }
 .keyboard-key.is-enter {
   background: #171412;
   border-color: #171412;
+  box-shadow: 0 1px 0 #000000;
   color: #fbfaf4;
 }
 .keyboard-key.is-space {
-  min-height: 28px;
   font-family: "IBM Plex Mono", Menlo, ui-monospace, monospace;
   font-size: 12px;
   color: #6b6356;
-  background: #faf6ec;
 }
