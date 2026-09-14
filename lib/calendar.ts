@@ -15,11 +15,9 @@ export interface Day {
   inMonth: boolean;
 }
 
-export function parseMonth(s: string | undefined | string[]): YearMonth | null {
+export function parseMonth(s: string | undefined): YearMonth | null {
   if (!s) return null;
-  const v = Array.isArray(s) ? s[0] : s;
-  if (!v) return null;
-  const m = /^(\d{4})-(\d{1,2})$/.exec(v);
+  const m = /^(\d{4})-(\d{1,2})$/.exec(s);
   if (!m) return null;
   const year = Number(m[1]);
   const month = Number(m[2]);
@@ -43,8 +41,13 @@ export function formatISO(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-export function todayISO(): string {
-  return formatISO(new Date());
+/** "14 במאי 1948" for an ISO date. */
+export function formatHebrewDate(iso: string): string {
+  return new Date(iso + "T00:00:00").toLocaleDateString("he-IL", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 /** ISO date shifted by `delta` days. */

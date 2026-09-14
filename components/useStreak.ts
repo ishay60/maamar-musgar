@@ -27,11 +27,9 @@ function save(data: StreakData): void {
 
 export function useStreak(today: string) {
   const [data, setData] = useState<StreakData>(emptyStreak);
-  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     setData(load());
-    setHydrated(true);
   }, []);
 
   const recordCompletion = (puzzleDate: string, score: number, rank: string) => {
@@ -42,5 +40,5 @@ export function useStreak(today: string) {
     });
   };
 
-  return { data, hydrated, recordCompletion };
+  return { data, recordCompletion };
 }

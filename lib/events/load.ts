@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { EVENT_CATEGORY_LABELS } from "./types";
 import type { HistoricalEvent, EventCategory } from "./types";
 
 const DATA_FILE = path.join(process.cwd(), "data", "historical-events.json");
@@ -14,15 +15,9 @@ export function monthDayFromIso(iso: string): string | null {
 }
 
 async function loadAllEvents(): Promise<HistoricalEvent[]> {
-  try {
-    const raw = await readFile(DATA_FILE, "utf8");
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isHistoricalEvent);
-  } catch (error) {
-    if (isNodeError(error) && error.code === "ENOENT") return [];
-    throw error;
-  }
+  const raw = await readFile(DATA_FILE, "utf8").catch(() => "[]");
+  const parsed = JSON.parse(raw);
+  return Array.isArray(parsed) ? parsed.filter(isHistoricalEvent) : [];
 }
 
 export async function loadEventsForDate(iso: string): Promise<HistoricalEvent[]> {
@@ -48,15 +43,5 @@ function isHistoricalEvent(value: unknown): value is HistoricalEvent {
 }
 
 function isCategory(s: string): s is EventCategory {
-  return (
-    s === "israeli" ||
-    s === "jewish" ||
-    s === "world" ||
-    s === "culture" ||
-    s === "science"
-  );
-}
-
-function isNodeError(error: unknown): error is NodeJS.ErrnoException {
-  return error instanceof Error && "code" in error;
+  return Object.hasOwn(EVENT_CATEGORY_LABELS, s);
 }

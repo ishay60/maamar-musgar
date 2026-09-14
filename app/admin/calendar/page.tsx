@@ -18,12 +18,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/**
- * Monthly calendar of puzzle status — Phase 3 content-management tool.
- * Shows scheduled/published puzzles against gaps so an editor can spot days
- * missing coverage. The "month" is derived from the newest sample puzzle so
- * the grid is always populated during demo/seed state.
- */
 export default async function CalendarPage({
   searchParams,
 }: {
@@ -57,7 +51,7 @@ export default async function CalendarPage({
             לוח השנה של החידות
           </h1>
           <p className="puzzle-mono text-[12px] mt-1" style={{ color: "#6b6356" }}>
-            Phase 3 · Calendar · {published} פורסמו · {gaps} חסרים החודש
+            {published} פורסמו · {gaps} חסרים החודש
           </p>
         </div>
         <nav

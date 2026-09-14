@@ -1,9 +1,8 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { buildPuzzle } from "./puzzle/build";
 import type { BuildPuzzleInput } from "./puzzle/build";
 import type { Puzzle } from "./puzzle/types";
-import { puzzles as builtPuzzles } from "./puzzle/puzzles";
+import { buildAll, puzzles as builtPuzzles } from "./puzzle/puzzles";
 
 /**
  * Where data/puzzles.json lives when the admin saves.
@@ -82,9 +81,7 @@ export async function loadLivePuzzles(): Promise<Puzzle[]> {
   const raw = await puzzleStore()?.read().catch(() => null);
   if (!raw) return builtPuzzles;
   try {
-    return (JSON.parse(raw) as BuildPuzzleInput[])
-      .map(buildPuzzle)
-      .sort((a, b) => a.date.localeCompare(b.date));
+    return buildAll(JSON.parse(raw) as BuildPuzzleInput[]);
   } catch {
     return builtPuzzles;
   }

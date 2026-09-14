@@ -89,7 +89,6 @@ function parseBuildPuzzleInput(value: unknown): BuildPuzzleInput {
   if (!isRecord(value)) throw new Error("Puzzle payload must be an object.");
   const id = requiredString(value.id, "id");
   const date = requiredString(value.date, "date");
-  const title = requiredString(value.title, "title");
   const bracketString = requiredString(value.bracketString, "bracketString");
   const finalSentence = requiredString(value.finalSentence, "finalSentence");
   const specs = parseSpecs(value.specs);
@@ -97,7 +96,6 @@ function parseBuildPuzzleInput(value: unknown): BuildPuzzleInput {
   return {
     id,
     date,
-    title,
     bracketString,
     specs,
     finalSentence,
@@ -122,7 +120,6 @@ function parseSpecs(value: unknown): BuildPuzzleInput["specs"] {
         : undefined,
       clueType: parseClueType(spec.clueType, `specs[${idx}].clueType`),
       difficulty: parseDifficulty(spec.difficulty, `specs[${idx}].difficulty`),
-      hint: typeof spec.hint === "string" ? spec.hint : undefined,
     };
   });
 }

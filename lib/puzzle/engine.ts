@@ -108,6 +108,11 @@ export function applyGuess(
     return { ok: false, reason: "wrong" };
   }
 
+  return markSolved(puzzle, state, node);
+}
+
+/** Records `node` as solved and advances the active leaf. Shared by guess + reveal. */
+function markSolved(puzzle: Puzzle, state: GameState, node: PuzzleNode): GuessResult {
   const before = new Set(state.solved);
   state.solved.add(node.id);
   state.solveOrder = [...state.solveOrder, node.id];
@@ -123,12 +128,7 @@ export function applyGuess(
     state.activeNodeId = nowSolvable[0]?.id ?? null;
   }
 
-  return {
-    ok: true,
-    solvedNodeId: node.id,
-    newlySolvable: actuallyNew,
-    complete,
-  };
+  return { ok: true, solvedNodeId: node.id, newlySolvable: actuallyNew, complete };
 }
 
 /**
@@ -172,23 +172,8 @@ export function applyReveal(puzzle: Puzzle, state: GameState, nodeId: string): G
   if (!node || node.type !== "bracket") return { ok: false, reason: "unknown-node" };
   if (!isNodeSolvable(node, state.solved)) return { ok: false, reason: "locked" };
 
-  const before = new Set(state.solved);
   state.reveals.add(node.id);
-  state.solved.add(node.id);
-  state.solveOrder = [...state.solveOrder, node.id];
-
-  const wasSolvable = new Set(getSolvableLeaves(puzzle.tree, before).map((n) => n.id));
-  const nowSolvable = getSolvableLeaves(puzzle.tree, state.solved);
-  const actuallyNew = nowSolvable.filter((n) => !wasSolvable.has(n.id));
-
-  const complete = isPuzzleComplete(puzzle.tree, state.solved);
-  if (complete && state.completedAt == null) state.completedAt = Date.now();
-
-  if (state.activeNodeId === node.id) {
-    state.activeNodeId = nowSolvable[0]?.id ?? null;
-  }
-
-  return { ok: true, solvedNodeId: node.id, newlySolvable: actuallyNew, complete };
+  return markSolved(puzzle, state, node);
 }
 
 export function findNode(tree: PuzzleNode, id: string): PuzzleNode | null {

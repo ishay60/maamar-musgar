@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
-const title = "מאמר מוסגר — Bracket City Hebrew";
+const title = "מאמר מוסגר";
 const description = "חידת הסוגריים היומית — פענחו את המשפט החבוי, סוגר אחר סוגר.";
 
 export const metadata: Metadata = {
@@ -13,7 +13,6 @@ export const metadata: Metadata = {
   applicationName: "מאמר מוסגר",
   keywords: [
     "מאמר מוסגר",
-    "Bracket City",
     "חידה",
     "תשבץ עברי",
     "משחק מילים",

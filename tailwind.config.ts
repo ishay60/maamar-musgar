@@ -10,20 +10,6 @@ const config: Config = {
     extend: {
       fontFamily: {
         hebrew: ['"David Libre"', '"Frank Ruhl Libre"', "Times New Roman", "serif"],
-        mono: ['"IBM Plex Mono"', "Menlo", "ui-monospace", "monospace"],
-      },
-      colors: {
-        page: "#fbfaf4",
-        card: "#ffffff",
-        ink: "#171412",
-        muted: "#6b6356",
-        rule: "#e7e0d0",
-        leaf: {
-          DEFAULT: "#c7d2fe",
-          strong: "#a5b4fc",
-          text: "#1e1b4b",
-          border: "#6366f1",
-        },
       },
       keyframes: {
         solvePop: {

@@ -53,7 +53,6 @@ export function GameContainerPreview({ puzzle }: { puzzle: Puzzle }) {
 
   return (
     <div
-      key={puzzle.id}
       className="rounded-md p-3"
       style={{ backgroundColor: "#fbfaf4", border: "1px dashed #d6d3d1" }}
     >
@@ -74,7 +73,7 @@ export function GameContainerPreview({ puzzle }: { puzzle: Puzzle }) {
           {autoSolving ? "⏸ עצרו" : game.complete ? "✓ הושלם" : "▶ פתרון אוטומטי"}
         </button>
         <span className="puzzle-mono text-[11px]" style={{ color: "#6b6356" }}>
-          בודק שכל סוגר נפתר מתוך רצף ה־DFS — אם נתקע, רמז שיש תשובה חסרה או לא עקבית.
+          בודק שכל סוגר נפתר לפי סדר ההופעה — אם נתקע, רמז שיש תשובה חסרה או לא עקבית.
         </span>
       </div>
       {game.complete ? (

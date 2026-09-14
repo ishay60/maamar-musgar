@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_COOKIE, isAdminAuthed, isAdminEnabled } from "@/lib/adminAccess";
-import { loadEventsForDate, monthDayFromIso } from "@/lib/events";
+import { loadEventsForDate, monthDayFromIso } from "@/lib/events/load";
 
 export const dynamic = "force-dynamic";
 

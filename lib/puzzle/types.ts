@@ -24,13 +24,11 @@ export interface PuzzleNode {
   id: string;
   type: NodeType;
   content?: string;
-  clue?: string;
   answer?: string;
   children?: PuzzleNode[];
   difficulty?: Difficulty;
   clueType?: ClueType;
   acceptedAnswers?: string[];
-  hint?: string;
 }
 
 export interface BracketSpec {
@@ -38,19 +36,16 @@ export interface BracketSpec {
   acceptedAnswers?: string[];
   clueType?: ClueType;
   difficulty?: Difficulty;
-  hint?: string;
 }
 
 export interface Puzzle {
   id: string;
   date: string;
-  title: string;
   finalSentence: string;
   historicalContext?: string;
   tree: PuzzleNode;
   totalBrackets: number;
   maxScore: number;
-  language: "he";
   tags?: string[];
   difficulty?: Difficulty;
 }

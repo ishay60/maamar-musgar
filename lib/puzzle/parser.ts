@@ -85,7 +85,6 @@ export function attachAnswers(
     node.acceptedAnswers = spec.acceptedAnswers;
     node.clueType = spec.clueType;
     node.difficulty = spec.difficulty;
-    node.hint = spec.hint;
   });
 }
 

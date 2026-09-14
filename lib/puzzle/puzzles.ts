@@ -3,14 +3,12 @@ import type { BuildPuzzleInput } from "./build";
 import type { Puzzle } from "./types";
 import puzzleInputs from "@/data/puzzles.json";
 
-/** Every authored puzzle, sorted by date ascending. Source of truth: data/puzzles.json. */
-export const puzzles: Puzzle[] = (puzzleInputs as BuildPuzzleInput[])
-  .map(buildPuzzle)
-  .sort((a, b) => a.date.localeCompare(b.date));
-
-export function findPuzzleByDate(date: string): Puzzle | null {
-  return puzzles.find((p) => p.date === date) ?? null;
+export function buildAll(inputs: BuildPuzzleInput[]): Puzzle[] {
+  return inputs.map(buildPuzzle).sort((a, b) => a.date.localeCompare(b.date));
 }
+
+/** Every authored puzzle, sorted by date ascending. Source of truth: data/puzzles.json. */
+export const puzzles: Puzzle[] = buildAll(puzzleInputs as BuildPuzzleInput[]);
 
 /** Today's date (YYYY-MM-DD) in Israel — puzzles roll over at Israeli midnight. */
 export function todayInIsrael(now = new Date()): string {

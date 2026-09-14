@@ -1,10 +1,11 @@
 "use client";
 
 import type { PuzzleNode } from "@/lib/puzzle";
+import { clueSummary, Empty } from "./shared";
 
 /**
- * Compact DFS tree visualization for the authoring surface. Each bracket row
- * shows its DFS index, clue skeleton, and answer (if provided). Nested
+ * Compact tree visualization for the authoring surface. Each bracket row
+ * shows its index (order of appearance), clue skeleton, and answer (if provided). Nested
  * brackets indent. Non-bracket text nodes are rendered dim.
  */
 export function TreeView({
@@ -14,7 +15,7 @@ export function TreeView({
   tree: PuzzleNode | null;
   answers: string[];
 }) {
-  if (!tree) return <Empty />;
+  if (!tree) return <Empty text={NO_TREE} />;
 
   const rows: JSX.Element[] = [];
   let bracketIdx = 0;
@@ -40,9 +41,7 @@ export function TreeView({
     // bracket
     const idx = bracketIdx++;
     const answer = answers[idx] ?? "";
-    const clueSummary = (n.children ?? [])
-      .map((c) => (c.type === "text" ? c.content ?? "" : "[…]"))
-      .join("");
+    const summary = clueSummary(n);
     rows.push(
       <div
         key={`b-${idx}`}
@@ -55,8 +54,8 @@ export function TreeView({
         >
           {idx}
         </span>
-        <span className="flex-1 truncate" style={{ color: "#374151" }} title={clueSummary}>
-          {clueSummary || <span style={{ opacity: 0.4 }}>[ריק]</span>}
+        <span className="flex-1 truncate" style={{ color: "#374151" }} title={summary}>
+          {summary || <span style={{ opacity: 0.4 }}>[ריק]</span>}
         </span>
         <span style={{ color: "#6b6356" }}>→</span>
         <span
@@ -74,14 +73,8 @@ export function TreeView({
   };
   walk(tree, 0);
 
-  if (rows.length === 0) return <Empty />;
+  if (rows.length === 0) return <Empty text={NO_TREE} />;
   return <div className="space-y-0.5">{rows}</div>;
 }
 
-function Empty() {
-  return (
-    <div className="puzzle-mono text-[12px] text-center py-6" style={{ color: "#9ca3af" }}>
-      אין עץ פירוק — ודאו שהסוגריים מאוזנים
-    </div>
-  );
-}
+const NO_TREE = "אין עץ פירוק — ודאו שהסוגריים מאוזנים";
