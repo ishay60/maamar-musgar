@@ -82,33 +82,26 @@ export function EventSuggestions({
       {state.events.map((evt) => (
         <li
           key={evt.id}
-          className="rounded-md p-3"
-          style={{ backgroundColor: "#fbfaf4", border: "1px solid #e7e0d0" }}
+          className="rounded-md p-3 bg-paper border border-line"
         >
           <div className="flex items-baseline gap-2 flex-wrap">
             <CategoryBadge category={evt.category} />
             {evt.year != null ? (
               <span
-                className="puzzle-mono text-[11px]"
-                style={{ color: "#6b6356" }}
+                className="puzzle-mono text-[11px] text-muted"
               >
                 {evt.year}
               </span>
             ) : null}
             <h4
-              className="text-[15px] font-semibold leading-snug"
-              style={{ fontFamily: '"David Libre", serif' }}
+              className="text-[15px] font-semibold leading-snug font-hebrew"
             >
               {evt.titleHe}
             </h4>
           </div>
           {evt.descriptionHe ? (
             <p
-              className="text-[13px] mt-1 leading-relaxed"
-              style={{
-                fontFamily: '"David Libre", serif',
-                color: "#3f3a32",
-              }}
+              className="text-[13px] mt-1 leading-relaxed font-hebrew text-stone-700"
             >
               {evt.descriptionHe}
             </p>
@@ -119,20 +112,14 @@ export function EventSuggestions({
               onClick={() =>
                 onUseAsContext(buildContextText(evt))
               }
-              className="px-2.5 py-1 rounded-md puzzle-mono text-[11px]"
-              style={{ backgroundColor: "#171412", color: "#fbfaf4" }}
+              className="px-2.5 py-1 rounded-md puzzle-mono text-[11px] bg-ink text-paper"
             >
               [השתמש כהקשר]
             </button>
             <button
               type="button"
               onClick={() => onUseAsSentence(evt.titleHe)}
-              className="px-2.5 py-1 rounded-md puzzle-mono text-[11px]"
-              style={{
-                backgroundColor: "transparent",
-                color: "#171412",
-                border: "1px solid #171412",
-              }}
+              className="px-2.5 py-1 rounded-md puzzle-mono text-[11px] bg-transparent text-ink border border-ink"
             >
               [השתמש כמשפט]
             </button>
@@ -153,18 +140,16 @@ function buildContextText(evt: HistoricalEvent): string {
 }
 
 function CategoryBadge({ category }: { category: EventCategory }) {
-  const palette: Record<EventCategory, { bg: string; fg: string }> = {
-    israeli: { bg: "#dbeafe", fg: "#1e3a8a" },
-    jewish: { bg: "#ede9fe", fg: "#5b21b6" },
-    world: { bg: "#fee2e2", fg: "#991b1b" },
-    culture: { bg: "#fef3c7", fg: "#92400e" },
-    science: { bg: "#d1fae5", fg: "#065f46" },
+  const palette: Record<EventCategory, string> = {
+    israeli: "bg-blue-100 text-blue-900",
+    jewish: "bg-violet-100 text-violet-800",
+    world: "bg-red-100 text-red-800",
+    culture: "bg-amber-100 text-amber-800",
+    science: "bg-emerald-100 text-emerald-800",
   };
-  const { bg, fg } = palette[category];
   return (
     <span
-      className="puzzle-mono text-[10px] tracking-wider uppercase px-1.5 py-0.5 rounded"
-      style={{ backgroundColor: bg, color: fg }}
+      className={`puzzle-mono text-[10px] tracking-wider uppercase px-1.5 py-0.5 rounded ${palette[category]}`}
     >
       {EVENT_CATEGORY_LABELS[category]}
     </span>

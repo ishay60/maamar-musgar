@@ -53,8 +53,7 @@ export function GameContainerPreview({ puzzle }: { puzzle: Puzzle }) {
 
   return (
     <div
-      className="rounded-md p-3"
-      style={{ backgroundColor: "#fbfaf4", border: "1px dashed #d6d3d1" }}
+      className="rounded-md p-3 bg-paper border border-dashed border-stone-300"
     >
       <PuzzleBoard tree={puzzle.tree} game={game} />
       <AnswerBank tree={puzzle.tree} game={game} />
@@ -66,20 +65,18 @@ export function GameContainerPreview({ puzzle }: { puzzle: Puzzle }) {
           type="button"
           onClick={() => setAutoSolving((v) => !v)}
           disabled={game.complete}
-          className="px-3 py-1 rounded-md puzzle-mono text-[12px] disabled:opacity-40"
-          style={{ backgroundColor: "#171412", color: "#fbfaf4" }}
+          className="px-3 py-1 rounded-md puzzle-mono text-[12px] disabled:opacity-40 bg-ink text-paper"
           aria-pressed={autoSolving}
         >
           {autoSolving ? "⏸ עצרו" : game.complete ? "✓ הושלם" : "▶ פתרון אוטומטי"}
         </button>
-        <span className="puzzle-mono text-[11px]" style={{ color: "#6b6356" }}>
+        <span className="puzzle-mono text-[11px] text-muted">
           בודק שכל סוגר נפתר לפי סדר ההופעה — אם נתקע, רמז שיש תשובה חסרה או לא עקבית.
         </span>
       </div>
       {game.complete ? (
         <div
-          className="mt-3 rounded-md p-2 puzzle-mono text-[12px] text-center"
-          style={{ backgroundColor: "#ecfdf5", color: "#047857" }}
+          className="mt-3 rounded-md p-2 puzzle-mono text-[12px] text-center bg-emerald-50 text-emerald-700"
         >
           ✓ נפתר בהצלחה — המשפט המלא: {puzzle.finalSentence}
         </div>

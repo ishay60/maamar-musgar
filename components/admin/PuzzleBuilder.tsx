@@ -121,24 +121,23 @@ export function PuzzleBuilder({
       <header className="flex items-baseline justify-between gap-3 flex-wrap mb-6">
         <div>
           <h1
-            className="text-2xl font-bold tracking-tight"
-            style={{ fontFamily: '"David Libre", serif' }}
+            className="text-2xl font-bold tracking-tight font-hebrew"
           >
             מאמר מוסגר · סטודיו החידות
           </h1>
-          <p className="puzzle-mono text-[12px] mt-1" style={{ color: "#6b6356" }}>
+          <p className="puzzle-mono text-[12px] mt-1 text-muted">
             {editingId ? `עריכה · ${editingId}` : "חידה חדשה"}
           </p>
         </div>
-        <nav className="puzzle-mono text-[13px] flex items-center gap-3" style={{ color: "#6b6356" }}>
+        <nav className="puzzle-mono text-[13px] flex items-center gap-3 text-muted">
           <Link href={`/admin/calendar?month=${date.slice(0, 7)}`} className="underline-offset-4 hover:underline">
             לוח שנה →
           </Link>
-          <span style={{ opacity: 0.4 }}>·</span>
+          <span className="opacity-40">·</span>
           <Link href="/admin/archive" className="underline-offset-4 hover:underline">
             ארכיון →
           </Link>
-          <span style={{ opacity: 0.4 }}>·</span>
+          <span className="opacity-40">·</span>
           <Link href="/" className="underline-offset-4 hover:underline">
             ← חזרה לחידה
           </Link>
@@ -152,7 +151,7 @@ export function PuzzleBuilder({
               <Field label="תאריך (ISO)">
                 <div className="flex items-center gap-2">
                   <DayLink iso={shiftDay(date, -1)} label="◀ יום קודם" />
-                  <TextInput value={date} onChange={setDate} className="puzzle-mono" />
+                  <TextInput value={date} onChange={setDate} className="puzzle-mono text-center" dir="ltr" />
                   <DayLink iso={shiftDay(date, 1)} label="יום הבא ▶" />
                 </div>
               </Field>
@@ -187,7 +186,7 @@ export function PuzzleBuilder({
               mono
               placeholder="כתבו את המשפט עם סוגרי רמז. לדוגמה: [מלך ישראל] המלך [פועל] ב[עיר]"
             />
-            <div className="puzzle-mono text-[11px] mt-1" style={{ color: "#6b6356" }}>
+            <div className="puzzle-mono text-[11px] mt-1 text-muted">
               {validation.bracketCount} סוגרים (לפי סדר הופעה)
             </div>
           </Card>
@@ -222,8 +221,7 @@ export function PuzzleBuilder({
               <GameContainerPreview puzzle={builtPuzzle} />
             ) : (
               <div
-                className="puzzle-mono text-[12px] text-center py-6"
-                style={{ color: "#9ca3af" }}
+                className="puzzle-mono text-[12px] text-center py-6 text-gray-400"
               >
                 תקנו את השגיאות מטה כדי לצפות בתצוגה החיה
               </div>
@@ -238,12 +236,10 @@ export function PuzzleBuilder({
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section
-      className="rounded-xl p-4"
-      style={{ backgroundColor: "#ffffff", border: "1px solid #e7e0d0" }}
+      className="rounded-xl p-4 bg-white border border-line"
     >
       <div
-        className="puzzle-mono text-[11px] tracking-wider uppercase mb-2"
-        style={{ color: "#6b6356" }}
+        className="puzzle-mono text-[11px] tracking-wider uppercase mb-2 text-muted"
       >
         {title}
       </div>
@@ -256,8 +252,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   return (
     <label className="block">
       <div
-        className="puzzle-mono text-[11px] mb-1"
-        style={{ color: "#6b6356" }}
+        className="puzzle-mono text-[11px] mb-1 text-muted"
       >
         {label}
       </div>
@@ -270,19 +265,20 @@ function TextInput({
   value,
   onChange,
   className = "",
+  dir = "rtl",
 }: {
   value: string;
   onChange: (v: string) => void;
   className?: string;
+  dir?: "rtl" | "ltr";
 }) {
   return (
     <input
       type="text"
-      dir="auto"
+      dir={dir}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`w-full rounded-md px-3 py-2 text-[14px] ${className}`}
-      style={{ border: "1px solid #e7e0d0", backgroundColor: "#fbfaf4" }}
+      className={`w-full rounded-md px-3 py-2 text-[14px] border border-line bg-paper ${className}`}
     />
   );
 }
@@ -299,8 +295,7 @@ function DifficultySelect({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value as Difficulty | "")}
-      className="w-full rounded-md px-3 py-2 text-[14px] puzzle-mono"
-      style={{ border: "1px solid #e7e0d0", backgroundColor: "#fbfaf4" }}
+      className="w-full rounded-md px-3 py-2 text-[14px] puzzle-mono border border-line bg-paper"
       aria-label="רמת קושי של החידה"
     >
       <option value="">— ללא דירוג —</option>
@@ -328,20 +323,14 @@ function TextArea({
 }) {
   return (
     <textarea
-      dir="auto"
+      dir="rtl"
       rows={rows}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className={`w-full rounded-md px-3 py-2 text-[14px] ${mono ? "puzzle-mono" : ""}`}
-      style={{
-        border: "1px solid #e7e0d0",
-        backgroundColor: "#fbfaf4",
-        fontFamily: mono
-          ? '"IBM Plex Mono", monospace'
-          : '"David Libre", serif',
-        lineHeight: 1.55,
-      }}
+      className={`w-full rounded-md px-3 py-2 text-[14px] border border-line bg-paper leading-relaxed ${
+        mono ? "puzzle-mono" : "font-hebrew"
+      }`}
     />
   );
 }
@@ -349,23 +338,24 @@ function TextArea({
 function ValidationPanel({ validation }: { validation: ReturnType<typeof validatePuzzleAuthoring> }) {
   const errors = validation.issues.filter((i) => i.severity === "error");
   const warnings = validation.issues.filter((i) => i.severity === "warning");
-  const statusColor = validation.ok ? "#047857" : errors.length > 0 ? "#b91c1c" : "#b45309";
+  const statusColor = validation.ok
+    ? "text-emerald-700"
+    : errors.length > 0
+      ? "text-red-700"
+      : "text-amber-700";
   return (
     <section
-      className="rounded-xl p-4"
-      style={{
-        backgroundColor: validation.ok ? "#ecfdf5" : "#fffbeb",
-        border: `1px solid ${validation.ok ? "#86efac" : "#fde68a"}`,
-      }}
+      className={`rounded-xl p-4 border ${
+        validation.ok ? "bg-emerald-50 border-emerald-300" : "bg-amber-50 border-amber-200"
+      }`}
     >
       <div className="flex items-center justify-between">
         <div
-          className="puzzle-mono text-[11px] tracking-wider uppercase"
-          style={{ color: statusColor }}
+          className={`puzzle-mono text-[11px] tracking-wider uppercase ${statusColor}`}
         >
           {validation.ok ? "✓ תקין — מוכן לפרסום" : `✕ ${errors.length} שגיאות, ${warnings.length} אזהרות`}
         </div>
-        <div className="puzzle-mono text-[11px]" style={{ color: "#6b6356" }}>
+        <div className="puzzle-mono text-[11px] text-muted">
           סוגרים: {validation.bracketCount}
         </div>
       </div>
@@ -374,12 +364,11 @@ function ValidationPanel({ validation }: { validation: ReturnType<typeof validat
           {validation.issues.map((i, idx) => (
             <li
               key={idx}
-              className="puzzle-mono text-[12px] whitespace-pre-wrap"
-              style={{
-                color: i.severity === "error" ? "#991b1b" : "#92400e",
-              }}
+              className={`puzzle-mono text-[12px] whitespace-pre-wrap ${
+                i.severity === "error" ? "text-red-800" : "text-amber-800"
+              }`}
             >
-              <span style={{ fontWeight: 700 }}>
+              <span className="font-bold">
                 {i.severity === "error" ? "שגיאה" : "אזהרה"}
               </span>{" "}
               [{i.code}] {i.message}
@@ -451,12 +440,10 @@ function ExportPanel({
 
   return (
     <section
-      className="rounded-xl p-4"
-      style={{ backgroundColor: "#ffffff", border: "1px solid #e7e0d0" }}
+      className="rounded-xl p-4 bg-white border border-line"
     >
       <div
-        className="puzzle-mono text-[11px] tracking-wider uppercase mb-2"
-        style={{ color: "#6b6356" }}
+        className="puzzle-mono text-[11px] tracking-wider uppercase mb-2 text-muted"
       >
         ייצוא
       </div>
@@ -465,8 +452,7 @@ function ExportPanel({
           type="button"
           onClick={save}
           disabled={!puzzle || saveState.status === "saving"}
-          className="px-3 py-1.5 rounded-md puzzle-mono text-[12px] disabled:opacity-40"
-          style={{ backgroundColor: "#047857", color: "#ecfdf5" }}
+          className="px-3 py-1.5 rounded-md puzzle-mono text-[12px] disabled:opacity-40 bg-emerald-700 text-emerald-50"
         >
           {saveState.status === "saving" ? "שומר..." : "[שמירה]"}
         </button>
@@ -474,23 +460,22 @@ function ExportPanel({
           type="button"
           onClick={() => copy("json", json)}
           disabled={!puzzle}
-          className="px-3 py-1.5 rounded-md puzzle-mono text-[12px] disabled:opacity-40"
-          style={{ backgroundColor: "#171412", color: "#fbfaf4" }}
+          className="px-3 py-1.5 rounded-md puzzle-mono text-[12px] disabled:opacity-40 bg-ink text-paper"
         >
           {copied === "json" ? "✓ הועתק" : "[העתקת JSON]"}
         </button>
       </div>
       {saveState.status === "saved" || saveState.status === "error" ? (
         <div
-          className="puzzle-mono text-[12px] mt-2"
-          style={{ color: saveState.status === "saved" ? "#047857" : "#b91c1c" }}
+          className={`puzzle-mono text-[12px] mt-2 ${
+            saveState.status === "saved" ? "text-emerald-700" : "text-red-700"
+          }`}
         >
           {saveState.message}
         </div>
       ) : null}
       <pre
-        className="mt-3 rounded-md p-3 puzzle-mono text-[11px] overflow-auto max-h-64"
-        style={{ backgroundColor: "#fbfaf4", border: "1px solid #e7e0d0", lineHeight: 1.5 }}
+        className="mt-3 rounded-md p-3 puzzle-mono text-[11px] overflow-auto max-h-64 bg-paper border border-line leading-normal"
         dir="ltr"
       >
         {json}
@@ -504,8 +489,7 @@ function DayLink({ iso, label }: { iso: string; label: string }) {
   return (
     <Link
       href={`/admin?date=${iso}`}
-      className="puzzle-mono text-[11px] whitespace-nowrap underline-offset-4 hover:underline"
-      style={{ color: "#6b6356" }}
+      className="puzzle-mono text-[11px] whitespace-nowrap underline-offset-4 hover:underline text-muted"
       title={iso}
     >
       {label}

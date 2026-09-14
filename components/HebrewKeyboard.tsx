@@ -1,19 +1,21 @@
 "use client";
 
 /**
- * Compact Hebrew on-screen keyboard for mobile. Letter positions match the
- * standard Israeli (QWERTY-mapped) Hebrew layout, so muscle memory from a
- * physical keyboard transfers directly:
+ * Hebrew on-screen keyboard for mobile, a copy of the iPhone Hebrew keyboard
+ * so thumbs already know where every letter is. iOS draws it visually
+ * left-to-right (ק is the leftmost key), so the rows below are written in
+ * screen order and the container is `dir="ltr"`:
  *
- *   row 1 (E…P):   ק ר א ט ו ן ם פ                  ⌫
- *   row 2 (A…;):   ש ד ג כ ע י ח ל ך ף
- *   row 3 (Z…/):   ז ס ב ה נ מ צ ת ץ                ↵
- *   row 4:         ─────── רווח ───────
+ *   row 1:  ק ר א ט ו ן ם פ ⌫        (8 keys + delete on the right)
+ *   row 2:  ש ד ג כ ע י ח ל ך ף       (10 keys, full width)
+ *   row 3:    ז ס ב ה נ מ צ ת ץ       (9 keys, centered)
+ *   row 4:  ─────── רווח ───────  ↵   (space, return on the right)
  *
- * Final letters (sofiot) live in their canonical positions on the layout —
- * `normalizeHebrew` still folds them when matching, so a player typing כ for
- * a word ending in ך is accepted, but the keyboard doesn't surprise anyone
- * who's used to a Hebrew keyboard.
+ * Every letter key is the same fixed width (a tenth of the row), and rows
+ * are centered, so nothing drifts.
+ *
+ * Final letters (sofiot) sit where iOS puts them — `normalizeHebrew` folds
+ * them when matching, so כ for a word ending in ך is still accepted.
  */
 
 const ROW_1 = ["ק", "ר", "א", "ט", "ו", "ן", "ם", "פ"];
@@ -35,7 +37,7 @@ export function HebrewKeyboard({ disabled, onChar, onBackspace, onEnter }: Props
       onClick={() => onChar(k)}
       disabled={disabled}
       aria-label={k}
-      className="keyboard-key flex-1 disabled:opacity-40"
+      className="keyboard-key"
     >
       {k}
     </button>
@@ -43,46 +45,44 @@ export function HebrewKeyboard({ disabled, onChar, onBackspace, onEnter }: Props
 
   return (
     <div
-      dir="rtl"
-      className="select-none"
+      dir="ltr"
+      className="keyboard select-none"
       role="group"
       aria-label="מקלדת עברית"
       aria-disabled={disabled || undefined}
     >
-      <div className="flex flex-col gap-1.5">
-        <div className="flex justify-center gap-[3px]">
-          {ROW_1.map(letterBtn)}
-          <button
-            type="button"
-            onClick={onBackspace}
-            disabled={disabled}
-            aria-label="מחיקה"
-            className="keyboard-key is-special flex-[1.4] disabled:opacity-40"
-          >
-            ⌫
-          </button>
-        </div>
-        <div className="flex justify-center gap-[3px]">{ROW_2.map(letterBtn)}</div>
-        <div className="flex justify-center gap-[3px]">
-          {ROW_3.map(letterBtn)}
-          <button
-            type="button"
-            onClick={onEnter}
-            disabled={disabled}
-            aria-label="שליחה"
-            className="keyboard-key is-special is-enter flex-[1.4] disabled:opacity-40"
-          >
-            ↵
-          </button>
-        </div>
+      <div className="keyboard-row">
+        {ROW_1.map(letterBtn)}
+        <button
+          type="button"
+          onClick={onBackspace}
+          disabled={disabled}
+          aria-label="מחיקה"
+          className="keyboard-key is-special is-backspace"
+        >
+          ⌫
+        </button>
+      </div>
+      <div className="keyboard-row">{ROW_2.map(letterBtn)}</div>
+      <div className="keyboard-row">{ROW_3.map(letterBtn)}</div>
+      <div className="keyboard-row">
         <button
           type="button"
           onClick={() => onChar(" ")}
           disabled={disabled}
           aria-label="רווח"
-          className="keyboard-key is-space disabled:opacity-40"
+          className="keyboard-key is-space"
         >
           רווח
+        </button>
+        <button
+          type="button"
+          onClick={onEnter}
+          disabled={disabled}
+          aria-label="שליחה"
+          className="keyboard-key is-special is-enter"
+        >
+          ↵
         </button>
       </div>
     </div>

@@ -206,10 +206,21 @@ function BracketView({
           fontSize: "inherit",
           boxShadow: "inset 0 0 0 1px rgba(30, 27, 75, 0.12)",
         };
+    // A real <button> is forced to inline-block, so a long clue can't wrap
+    // and the browser breaks the line *before* it — detaching a prefix like
+    // "בביי" from its bracket. An inline span keeps the prefix and clue in
+    // one text flow: no whitespace between them means no break opportunity.
     return (
-      <button
-        type="button"
+      <span
+        role="button"
+        tabIndex={0}
         onClick={() => onHelpRequest(node)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onHelpRequest(node);
+          }
+        }}
         className={
           "bracket-leaf cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366f1] " +
           (shaking ? "animate-shake" : "")
@@ -227,7 +238,7 @@ function BracketView({
         <span aria-hidden style={{ opacity: 0.65 }}>[</span>
         <span>{peeked ? renderPeek(node, state.solved) : renderLeafClue(node, state.solved)}</span>
         <span aria-hidden style={{ opacity: 0.65 }}>]</span>
-      </button>
+      </span>
     );
   }
 

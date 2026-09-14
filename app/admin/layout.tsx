@@ -18,12 +18,11 @@ function LoginForm({ failed }: { failed: boolean }) {
       <form
         method="post"
         action="/api/admin/login"
-        className="rounded-xl p-6 flex flex-col gap-3"
-        style={{ backgroundColor: "#ffffff", border: "1px solid #e7e0d0" }}
+        className="rounded-xl p-6 flex flex-col gap-3 bg-white border border-line"
       >
         <h1 className="text-lg font-semibold">סטודיו · כניסה</h1>
         {failed ? (
-          <p className="puzzle-mono text-[12px]" style={{ color: "#b91c1c" }}>
+          <p className="puzzle-mono text-[12px] text-red-700">
             סיסמה שגויה
           </p>
         ) : null}
@@ -33,13 +32,11 @@ function LoginForm({ failed }: { failed: boolean }) {
           autoFocus
           required
           placeholder="סיסמה"
-          className="rounded-md px-3 py-2"
-          style={{ border: "1px solid #e7e0d0" }}
+          className="rounded-md px-3 py-2 border border-line"
         />
         <button
           type="submit"
-          className="rounded-md px-3 py-2 puzzle-mono text-[12px]"
-          style={{ backgroundColor: "#171412", color: "#fbfaf4" }}
+          className="rounded-md px-3 py-2 puzzle-mono text-[12px] bg-ink text-paper"
         >
           [כניסה]
         </button>

@@ -8,6 +8,12 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      colors: {
+        ink: "#171412",
+        paper: "#fbfaf4",
+        line: "#e7e0d0",
+        muted: "#6b6356",
+      },
       fontFamily: {
         hebrew: ['"David Libre"', '"Frank Ruhl Libre"', "Times New Roman", "serif"],
       },
