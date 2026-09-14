@@ -1,15 +1,18 @@
 import type { ReactNode } from "react";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { ADMIN_COOKIE, isAdminAuthed, isAdminEnabled } from "@/lib/adminAccess";
+import { ADMIN_COOKIE, LOGIN_FAILED_COOKIE, isAdminAuthed, isAdminEnabled } from "@/lib/adminAccess";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   if (!isAdminEnabled()) notFound();
-  if (!isAdminAuthed(cookies().get(ADMIN_COOKIE)?.value)) return <LoginForm />;
+  const jar = cookies();
+  if (!isAdminAuthed(jar.get(ADMIN_COOKIE)?.value)) {
+    return <LoginForm failed={jar.has(LOGIN_FAILED_COOKIE)} />;
+  }
   return children;
 }
 
-function LoginForm() {
+function LoginForm({ failed }: { failed: boolean }) {
   return (
     <main className="mx-auto max-w-sm px-4 py-20">
       <form
@@ -19,6 +22,11 @@ function LoginForm() {
         style={{ backgroundColor: "#ffffff", border: "1px solid #e7e0d0" }}
       >
         <h1 className="text-lg font-semibold">סטודיו · כניסה</h1>
+        {failed ? (
+          <p className="puzzle-mono text-[12px]" style={{ color: "#b91c1c" }}>
+            סיסמה שגויה
+          </p>
+        ) : null}
         <input
           type="password"
           name="password"
