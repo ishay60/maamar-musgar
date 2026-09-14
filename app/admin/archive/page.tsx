@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { puzzles } from "@/lib/puzzle/puzzles";
+import { loadLivePuzzles } from "@/lib/puzzleStore";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "ארכיון החידות",
@@ -8,7 +10,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function ArchivePage() {
+export default async function ArchivePage() {
+  const puzzles = await loadLivePuzzles();
   const sorted = [...puzzles].sort((a, b) => b.date.localeCompare(a.date));
 
   return (
