@@ -1,4 +1,4 @@
-import type { BracketSpec, Puzzle, PuzzleNode } from "./types";
+import type { BracketSpec, Difficulty, Puzzle, PuzzleNode } from "./types";
 import {
   attachAnswers,
   collectBrackets,
@@ -16,6 +16,7 @@ export interface BuildPuzzleInput {
   historicalContext?: string;
   maxScore?: number;
   tags?: string[];
+  difficulty?: Difficulty;
 }
 
 export function buildPuzzle(input: BuildPuzzleInput): Puzzle {
@@ -38,6 +39,7 @@ export function buildPuzzle(input: BuildPuzzleInput): Puzzle {
     maxScore: input.maxScore ?? 100,
     language: "he",
     tags: input.tags ?? [],
+    difficulty: input.difficulty,
   };
 }
 
@@ -63,6 +65,7 @@ export function puzzleToBuildInput(puzzle: Puzzle): BuildPuzzleInput {
     })),
     tags: puzzle.tags,
     maxScore: puzzle.maxScore,
+    difficulty: puzzle.difficulty,
   };
 }
 

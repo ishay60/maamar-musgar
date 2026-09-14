@@ -71,12 +71,18 @@ export function PuzzleBoard({ tree, game }: Props) {
 
   return (
     <div
-      className="font-hebrew text-[19px] sm:text-[21px] leading-[1.9] text-[#171412]"
+      className="font-hebrew text-[17px] sm:text-[21px] leading-[1.7] sm:leading-[1.9] text-[#171412]"
       style={{ fontFamily: '"David Libre", "Frank Ruhl Libre", "Times New Roman", serif' }}
     >
       <div className="whitespace-normal break-words">
         {tree.children?.map((n) => (
-          <NodeView key={n.id} node={n} game={game} onHelpRequest={requestHelp} />
+          <NodeView
+            key={n.id}
+            node={n}
+            game={game}
+            onHelpRequest={requestHelp}
+            highlightActive={!!helpPrompt}
+          />
         ))}
       </div>
       {helpPrompt ? (
@@ -96,14 +102,23 @@ function NodeView({
   node,
   game,
   onHelpRequest,
+  highlightActive,
 }: {
   node: PuzzleNode;
   game: UsePuzzleGame;
   onHelpRequest: (node: PuzzleNode) => void;
+  highlightActive: boolean;
 }) {
   if (node.type === "text") return <TextRun content={node.content ?? ""} />;
   if (node.type === "bracket") {
-    return <BracketView node={node} game={game} onHelpRequest={onHelpRequest} />;
+    return (
+      <BracketView
+        node={node}
+        game={game}
+        onHelpRequest={onHelpRequest}
+        highlightActive={highlightActive}
+      />
+    );
   }
   return null;
 }
@@ -141,24 +156,27 @@ function BracketView({
   node,
   game,
   onHelpRequest,
+  highlightActive,
 }: {
   node: PuzzleNode;
   game: UsePuzzleGame;
   onHelpRequest: (node: PuzzleNode) => void;
+  highlightActive: boolean;
 }) {
   const { game: state, popNodeId, shakeNodeId } = game;
   const solved = state.solved.has(node.id);
   const solvable = isNodeSolvable(node, state.solved);
-  const active = state.activeNodeId === node.id;
+  const active = highlightActive && state.activeNodeId === node.id;
   const peeked = state.peeks.has(node.id);
   const revealed = state.reveals.has(node.id);
   const justSolved = popNodeId === node.id;
   const shaking = shakeNodeId === node.id;
 
   if (solved) {
+    const flashClass = justSolved ? "just-solved" : "";
     return (
       <span
-        className={justSolved ? "inline-block animate-solvePop" : "inline"}
+        className={`inline ${flashClass}`.trim()}
         aria-label={revealed ? `נחשף: ${node.answer}` : `נפתר: ${node.answer}`}
       >
         {revealed ? (
@@ -193,7 +211,7 @@ function BracketView({
         type="button"
         onClick={() => onHelpRequest(node)}
         className={
-          "bracket-leaf rounded-[4px] px-[3px] cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366f1] " +
+          "bracket-leaf cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366f1] " +
           (shaking ? "animate-shake" : "")
         }
         style={commonStyle}
@@ -218,7 +236,13 @@ function BracketView({
     <span role="group" aria-label="סוגר נעול — השלימו את הסוגרים שבפנים">
       <span>[</span>
       {(node.children ?? []).map((c) => (
-        <NodeView key={c.id} node={c} game={game} onHelpRequest={onHelpRequest} />
+        <NodeView
+          key={c.id}
+          node={c}
+          game={game}
+          onHelpRequest={onHelpRequest}
+          highlightActive={highlightActive}
+        />
       ))}
       <span>]</span>
     </span>
@@ -287,7 +311,7 @@ function HelpConfirmDialog({
             className="px-3 py-1.5 rounded-md border border-[#e7e0d0] puzzle-mono text-[12px]"
             style={{ color: "#171412", backgroundColor: "#ffffff" }}
           >
-            [cancel]
+            [ביטול]
           </button>
           <button
             type="button"
@@ -295,7 +319,7 @@ function HelpConfirmDialog({
             className="px-3 py-1.5 rounded-md puzzle-mono text-[12px]"
             style={{ backgroundColor: "#171412", color: "#fbfaf4" }}
           >
-            {isPeek ? "[peek −5]" : "[reveal −20]"}
+            {isPeek ? "[הצצה]" : "[reveal −20]"}
           </button>
         </div>
       </div>

@@ -5,4 +5,7 @@ dist
 coverage
 .DS_Store
 .env*.local
+.env
 *.log
+.claude/
+tsconfig.tsbuildinfo

@@ -1,0 +1,308 @@
+[
+  {
+    "id": "evt-bialik-born",
+    "monthDay": "01-09",
+    "year": 1873,
+    "titleHe": "המשורר חיים נחמן ביאליק נולד",
+    "descriptionHe": "המשורר הלאומי, נחשב לאבי השירה העברית המודרנית.",
+    "category": "culture",
+    "tags": ["ספרות", "שירה"]
+  },
+  {
+    "id": "evt-goldberg-died",
+    "monthDay": "01-15",
+    "year": 1970,
+    "titleHe": "המשוררת לאה גולדברג נפטרה",
+    "descriptionHe": "משוררת, סופרת לילדים ומחזאית ישראלית, חתנת פרס ישראל.",
+    "category": "culture",
+    "tags": ["ספרות", "שירה"]
+  },
+  {
+    "id": "evt-auschwitz-liberation",
+    "monthDay": "01-27",
+    "year": 1945,
+    "titleHe": "שחרור מחנה ההשמדה אושוויץ",
+    "descriptionHe": "הצבא האדום שחרר את אושוויץ-בירקנאו. היום מצוין כיום הזיכרון הבינלאומי לשואה.",
+    "category": "jewish",
+    "tags": ["שואה"]
+  },
+  {
+    "id": "evt-agnon-died",
+    "monthDay": "02-17",
+    "year": 1970,
+    "titleHe": "ש״י עגנון נפטר",
+    "descriptionHe": "סופר עברי, חתן פרס נובל לספרות 1966.",
+    "category": "culture",
+    "tags": ["ספרות", "פרס נובל"]
+  },
+  {
+    "id": "evt-einstein-born",
+    "monthDay": "03-14",
+    "year": 1879,
+    "titleHe": "אלברט איינשטיין נולד",
+    "descriptionHe": "פיזיקאי, מנסח תורת היחסות, חתן פרס נובל לפיזיקה 1921.",
+    "category": "science",
+    "tags": ["מדע", "פרס נובל"]
+  },
+  {
+    "id": "evt-egypt-peace",
+    "monthDay": "03-26",
+    "year": 1979,
+    "titleHe": "נחתם הסכם השלום בין ישראל למצרים",
+    "descriptionHe": "מנחם בגין ואנואר סאדאת חתמו בוושינגטון על הסכם השלום הראשון של ישראל עם מדינה ערבית.",
+    "category": "israeli",
+    "tags": ["שלום", "מצרים"]
+  },
+  {
+    "id": "evt-eichmann-trial",
+    "monthDay": "04-11",
+    "year": 1961,
+    "titleHe": "נפתח משפט אדולף אייכמן בירושלים",
+    "descriptionHe": "אחד הפושעים הנאצים הבכירים נשפט בירושלים על חלקו ב״פתרון הסופי״.",
+    "category": "jewish",
+    "tags": ["שואה", "משפט"]
+  },
+  {
+    "id": "evt-warsaw-ghetto",
+    "monthDay": "04-19",
+    "year": 1943,
+    "titleHe": "פרץ מרד גטו ורשה",
+    "descriptionHe": "ערב פסח: לוחמי הגטו, בראשות מרדכי אנילביץ, פתחו במרד מזוין נגד הנאצים.",
+    "category": "jewish",
+    "tags": ["שואה", "מרד"]
+  },
+  {
+    "id": "evt-sinai-withdrawal",
+    "monthDay": "04-25",
+    "year": 1982,
+    "titleHe": "ישראל השלימה את הנסיגה מסיני",
+    "descriptionHe": "בעקבות הסכם השלום עם מצרים, פינתה ישראל את חצי האי סיני, כולל פינוי ימית.",
+    "category": "israeli",
+    "tags": ["שלום", "מצרים", "פינוי"]
+  },
+  {
+    "id": "evt-herzl-born",
+    "monthDay": "05-02",
+    "year": 1860,
+    "titleHe": "בנימין זאב הרצל נולד",
+    "descriptionHe": "חוזה המדינה, מייסד התנועה הציונית המדינית.",
+    "category": "jewish",
+    "tags": ["ציונות"]
+  },
+  {
+    "id": "evt-meir-born",
+    "monthDay": "05-03",
+    "year": 1898,
+    "titleHe": "גולדה מאיר נולדה",
+    "descriptionHe": "ראשת הממשלה הרביעית של מדינת ישראל, האישה היחידה שכיהנה בתפקיד.",
+    "category": "israeli",
+    "tags": ["מדינאים"]
+  },
+  {
+    "id": "evt-amichai-born",
+    "monthDay": "05-03",
+    "year": 1924,
+    "titleHe": "המשורר יהודה עמיחי נולד",
+    "descriptionHe": "מגדולי המשוררים העבריים בני המאה ה-20, חתן פרס ישראל.",
+    "category": "culture",
+    "tags": ["ספרות", "שירה"]
+  },
+  {
+    "id": "evt-independence",
+    "monthDay": "05-14",
+    "year": 1948,
+    "titleHe": "הוכרזה הקמת מדינת ישראל",
+    "descriptionHe": "דוד בן-גוריון הקריא את מגילת העצמאות במוזיאון תל אביב, ב-ה׳ באייר תש״ח.",
+    "category": "israeli",
+    "tags": ["עצמאות"]
+  },
+  {
+    "id": "evt-goldberg-born",
+    "monthDay": "05-29",
+    "year": 1911,
+    "titleHe": "המשוררת לאה גולדברג נולדה",
+    "descriptionHe": "משוררת, סופרת ומחזאית, מהדמויות המרכזיות בשירה ובספרות הילדים העברית.",
+    "category": "culture",
+    "tags": ["ספרות"]
+  },
+  {
+    "id": "evt-six-day-war",
+    "monthDay": "06-05",
+    "year": 1967,
+    "titleHe": "פרצה מלחמת ששת הימים",
+    "descriptionHe": "ישראל פתחה במכת מנע נגד מצרים, ירדן וסוריה. בתום המלחמה שולשו שטחי המדינה.",
+    "category": "israeli",
+    "tags": ["מלחמה"]
+  },
+  {
+    "id": "evt-anne-frank-born",
+    "monthDay": "06-12",
+    "year": 1929,
+    "titleHe": "אנה פרנק נולדה",
+    "descriptionHe": "ילדה יהודיה-גרמניה, מחברת היומן המוכר ביותר על תקופת השואה.",
+    "category": "jewish",
+    "tags": ["שואה", "ספרות"]
+  },
+  {
+    "id": "evt-herzl-died",
+    "monthDay": "07-03",
+    "year": 1904,
+    "titleHe": "בנימין זאב הרצל נפטר",
+    "descriptionHe": "נפטר בעיירת מרפא באוסטריה, עשרות שנים לפני מימוש חזונו לבית לאומי לעם היהודי.",
+    "category": "jewish",
+    "tags": ["ציונות"]
+  },
+  {
+    "id": "evt-entebbe",
+    "monthDay": "07-04",
+    "year": 1976,
+    "titleHe": "מבצע יונתן באנטבה",
+    "descriptionHe": "כוח של סיירת מטכ״ל חילץ חטופים בנמל התעופה אנטבה באוגנדה. יוני נתניהו נפל בקרב.",
+    "category": "israeli",
+    "tags": ["מבצע", "חטיפה"]
+  },
+  {
+    "id": "evt-moon-landing",
+    "monthDay": "07-20",
+    "year": 1969,
+    "titleHe": "האדם נחת על הירח",
+    "descriptionHe": "ניל ארמסטרונג ובאז אולדרין נחתו על הירח במסגרת משימת אפולו 11.",
+    "category": "science",
+    "tags": ["חלל"]
+  },
+  {
+    "id": "evt-peres-born",
+    "monthDay": "08-02",
+    "year": 1923,
+    "titleHe": "שמעון פרס נולד",
+    "descriptionHe": "ראש ממשלה ונשיא ישראל, חתן פרס נובל לשלום.",
+    "category": "israeli",
+    "tags": ["מדינאים"]
+  },
+  {
+    "id": "evt-begin-born",
+    "monthDay": "08-16",
+    "year": 1913,
+    "titleHe": "מנחם בגין נולד",
+    "descriptionHe": "ראש הממשלה השישי של ישראל, חתן פרס נובל לשלום על הסכם השלום עם מצרים.",
+    "category": "israeli",
+    "tags": ["מדינאים"]
+  },
+  {
+    "id": "evt-oslo",
+    "monthDay": "09-13",
+    "year": 1993,
+    "titleHe": "נחתמו הסכמי אוסלו על מדשאת הבית הלבן",
+    "descriptionHe": "יצחק רבין ויאסר ערפאת לחצו ידיים בטקס היסטורי בנוכחות הנשיא ביל קלינטון.",
+    "category": "israeli",
+    "tags": ["שלום"]
+  },
+  {
+    "id": "evt-camp-david",
+    "monthDay": "09-17",
+    "year": 1978,
+    "titleHe": "נחתמו הסכמי קמפ דייוויד",
+    "descriptionHe": "מנחם בגין, אנואר סאדאת וג׳ימי קרטר חתמו על מסגרת לשלום בין ישראל למצרים.",
+    "category": "israeli",
+    "tags": ["שלום", "מצרים"]
+  },
+  {
+    "id": "evt-amichai-died",
+    "monthDay": "09-22",
+    "year": 2000,
+    "titleHe": "המשורר יהודה עמיחי נפטר",
+    "descriptionHe": "אחד מגדולי המשוררים העבריים, מתרגם ומסאי.",
+    "category": "culture",
+    "tags": ["ספרות"]
+  },
+  {
+    "id": "evt-peres-died",
+    "monthDay": "09-28",
+    "year": 2016,
+    "titleHe": "שמעון פרס הלך לעולמו",
+    "descriptionHe": "הנשיא התשיעי של מדינת ישראל, ראש ממשלה לשעבר, חתן פרס נובל לשלום.",
+    "category": "israeli",
+    "tags": ["מדינאים"]
+  },
+  {
+    "id": "evt-yom-kippur-war",
+    "monthDay": "10-06",
+    "year": 1973,
+    "titleHe": "פרצה מלחמת יום הכיפורים",
+    "descriptionHe": "מצרים וסוריה פתחו במתקפת פתע על ישראל ביום הכיפורים.",
+    "category": "israeli",
+    "tags": ["מלחמה"]
+  },
+  {
+    "id": "evt-bg-born",
+    "monthDay": "10-16",
+    "year": 1886,
+    "titleHe": "דוד בן-גוריון נולד",
+    "descriptionHe": "ראש הממשלה הראשון של מדינת ישראל, מכריז העצמאות.",
+    "category": "israeli",
+    "tags": ["מדינאים"]
+  },
+  {
+    "id": "evt-jordan-peace",
+    "monthDay": "10-26",
+    "year": 1994,
+    "titleHe": "נחתם הסכם השלום בין ישראל לירדן",
+    "descriptionHe": "יצחק רבין והמלך חוסיין חתמו על הסכם השלום בערבה.",
+    "category": "israeli",
+    "tags": ["שלום", "ירדן"]
+  },
+  {
+    "id": "evt-rabin-assassination",
+    "monthDay": "11-04",
+    "year": 1995,
+    "titleHe": "ראש הממשלה יצחק רבין נרצח",
+    "descriptionHe": "רבין נרצח בידי יגאל עמיר בתום עצרת תמיכה בהסכם אוסלו בכיכר מלכי ישראל בתל אביב.",
+    "category": "israeli",
+    "tags": ["רצח", "אוסלו"]
+  },
+  {
+    "id": "evt-kristallnacht",
+    "monthDay": "11-09",
+    "year": 1938,
+    "titleHe": "ליל הבדולח",
+    "descriptionHe": "פוגרום מאורגן ברחבי גרמניה הנאצית; בתי כנסת, חנויות ובתים יהודיים הוצתו ונבזזו.",
+    "category": "jewish",
+    "tags": ["שואה"]
+  },
+  {
+    "id": "evt-berlin-wall",
+    "monthDay": "11-09",
+    "year": 1989,
+    "titleHe": "נפילת חומת ברלין",
+    "descriptionHe": "תושבי מזרח גרמניה החלו לעבור בחופשיות מערבה, סימן לקיצה של המלחמה הקרה.",
+    "category": "world",
+    "tags": ["מלחמה קרה"]
+  },
+  {
+    "id": "evt-partition",
+    "monthDay": "11-29",
+    "year": 1947,
+    "titleHe": "כ״ט בנובמבר — האו״ם החליט על תכנית החלוקה",
+    "descriptionHe": "עצרת האו״ם אישרה ברוב של 33 מול 13 את חלוקת ארץ ישראל לשתי מדינות, יהודית וערבית.",
+    "category": "israeli",
+    "tags": ["או״ם"]
+  },
+  {
+    "id": "evt-bg-died",
+    "monthDay": "12-01",
+    "year": 1973,
+    "titleHe": "דוד בן-גוריון נפטר",
+    "descriptionHe": "ראש הממשלה הראשון של ישראל הלך לעולמו בשדה בוקר.",
+    "category": "israeli",
+    "tags": ["מדינאים"]
+  },
+  {
+    "id": "evt-first-intifada",
+    "monthDay": "12-09",
+    "year": 1987,
+    "titleHe": "פרצה האינתיפאדה הראשונה",
+    "descriptionHe": "התקוממות עממית פלסטינית בשטחי יהודה, שומרון ועזה, שנמשכה כשש שנים.",
+    "category": "israeli",
+    "tags": ["אינתיפאדה"]
+  }
+]

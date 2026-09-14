@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PuzzleBuilder } from "@/components/admin/PuzzleBuilder";
-import { findPuzzleByDate, samplePuzzles } from "@/lib/puzzle/samplePuzzles";
+import { findPuzzleByDate, puzzles } from "@/lib/puzzle/puzzles";
 
 export const metadata: Metadata = {
   title: "סטודיו החידות",
@@ -20,7 +20,7 @@ export default function AdminPage({
   const requestedDate = pickFirst(searchParams?.date);
 
   const puzzleById = requestedId
-    ? samplePuzzles.find((p) => p.id === requestedId) ?? null
+    ? puzzles.find((p) => p.id === requestedId) ?? null
     : null;
   const puzzleByDate =
     !puzzleById && requestedDate && /^\d{4}-\d{2}-\d{2}$/.test(requestedDate)

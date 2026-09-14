@@ -200,12 +200,3 @@ export function findNode(tree: PuzzleNode, id: string): PuzzleNode | null {
   return null;
 }
 
-/** Returns the parent node of `id` in the tree, or null for root. */
-export function findParent(tree: PuzzleNode, id: string): PuzzleNode | null {
-  for (const child of tree.children ?? []) {
-    if (child.id === id) return tree;
-    const found = findParent(child, id);
-    if (found) return found;
-  }
-  return null;
-}

@@ -32,7 +32,7 @@ export function HelpDialog({ open, onClose }: { open: boolean; onClose: () => vo
           איך משחקים
         </div>
         <h2 className="text-2xl font-bold mt-1" style={{ fontFamily: '"David Libre", serif' }}>
-          עיר הסוגריים
+          מאמר מוסגר
         </h2>
         <ol className="mt-4 space-y-3 text-[15px] leading-relaxed" style={{ fontFamily: '"David Libre", serif' }}>
           <li>
@@ -41,7 +41,6 @@ export function HelpDialog({ open, onClose }: { open: boolean; onClose: () => vo
           </li>
           <li>
             <b>מקלידים בלי ללחוץ.</b> פשוט התחילו להקליד את התשובה. <span className="puzzle-mono">Enter</span> לשליחה,
-            <span className="puzzle-mono"> Tab</span> למעבר בין סוגרים פתוחים,
             <span className="puzzle-mono"> Esc</span> לניקוי.
           </li>
           <li>

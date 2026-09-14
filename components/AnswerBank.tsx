@@ -40,13 +40,13 @@ export function AnswerBank({
   if (entries.length === 0) {
     return (
       <div className="mt-4 puzzle-mono text-[12px]" style={{ color: "#6b6356" }}>
-        Answer Bank: <span style={{ opacity: 0.6 }}>—</span>
+        בנק חידות: <span style={{ opacity: 0.6 }}>—</span>
       </div>
     );
   }
   return (
     <div className="mt-4 puzzle-mono text-[12px] flex flex-wrap items-baseline gap-x-2 gap-y-1">
-      <span style={{ color: "#6b6356" }}>Answer Bank:</span>
+      <span style={{ color: "#6b6356" }}>בנק חידות:</span>
       {entries.map(({ node, kind }, i) => (
         <span
           key={node.id}

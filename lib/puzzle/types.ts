@@ -1,6 +1,18 @@
 export type NodeType = "text" | "bracket" | "root";
 
 export type Difficulty = "easy" | "medium" | "hard";
+
+export const DIFFICULTY_EMOJI: Record<Difficulty, string> = {
+  easy: "🟢",
+  medium: "🟡",
+  hard: "🔴",
+};
+
+export const DIFFICULTY_LABEL_HE: Record<Difficulty, string> = {
+  easy: "קל",
+  medium: "בינוני",
+  hard: "קשה",
+};
 export type ClueType =
   | "definition"
   | "fill-blank"
@@ -40,4 +52,5 @@ export interface Puzzle {
   maxScore: number;
   language: "he";
   tags?: string[];
+  difficulty?: Difficulty;
 }

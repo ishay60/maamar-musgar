@@ -1,18 +1,18 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
-const title = "עיר הסוגריים — Bracket City Hebrew";
+const title = "מאמר מוסגר — Bracket City Hebrew";
 const description = "חידת הסוגריים היומית — פענחו את המשפט החבוי, סוגר אחר סוגר.";
 
 export const metadata: Metadata = {
   title: {
     default: title,
-    template: "%s · עיר הסוגריים",
+    template: "%s · מאמר מוסגר",
   },
   description,
-  applicationName: "עיר הסוגריים",
+  applicationName: "מאמר מוסגר",
   keywords: [
-    "עיר הסוגריים",
+    "מאמר מוסגר",
     "Bracket City",
     "חידה",
     "תשבץ עברי",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     description,
     type: "website",
     locale: "he_IL",
-    siteName: "עיר הסוגריים",
+    siteName: "מאמר מוסגר",
   },
   twitter: {
     card: "summary_large_image",
@@ -33,11 +33,10 @@ export const metadata: Metadata = {
     description,
   },
   robots: { index: true, follow: true },
-  icons: { icon: "/favicon.ico" },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#fbfaf4",
+  themeColor: "#f5f5f5",
 };
 
 export default function RootLayout({

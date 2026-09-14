@@ -1,6 +1,6 @@
 "use client";
 
-import { computeLiveScore } from "@/lib/puzzle";
+import { computeLiveScore, DIFFICULTY_EMOJI, DIFFICULTY_LABEL_HE } from "@/lib/puzzle";
 import type { Puzzle } from "@/lib/puzzle";
 import type { UsePuzzleGame } from "./usePuzzleGame";
 
@@ -25,6 +25,9 @@ export function HUD({
 }) {
   const liveScore = computeLiveScore(puzzle, game.game);
   const solvedCount = game.game.solved.size;
+  const difficulty = puzzle.difficulty;
+  const difficultyEmoji = difficulty ? DIFFICULTY_EMOJI[difficulty] : "🟢";
+  const difficultyLabel = difficulty ? DIFFICULTY_LABEL_HE[difficulty] : null;
 
   return (
     <div className="flex items-center justify-between gap-3 pb-3 border-b border-[#e7e0d0]">
@@ -38,8 +41,15 @@ export function HUD({
       </button>
 
       <div className="flex-1 text-center">
-        <div className="puzzle-mono text-[15px] tracking-wider uppercase">
-          🟢 [עיר הסוגריים] 🟢
+        <div
+          className="puzzle-mono text-[15px] tracking-wider uppercase"
+          title={difficultyLabel ? `רמת קושי: ${difficultyLabel}` : undefined}
+        >
+          <span aria-label={difficultyLabel ? `רמת קושי ${difficultyLabel}` : undefined}>
+            {difficultyEmoji}
+          </span>{" "}
+          [מאמר מוסגר]{" "}
+          <span aria-hidden="true">{difficultyEmoji}</span>
         </div>
         <div className="puzzle-mono text-[12px] text-[#6b6356] mt-0.5 flex items-center justify-center gap-2">
           <NavArrow direction="prev" disabled={!hasPrev} onClick={onPrev} />
@@ -90,7 +100,7 @@ function NavArrow({
 
 function formatHebrewDate(iso: string): string {
   try {
-    const d = new Date(iso);
+    const d = new Date(iso + "T00:00:00");
     return d
       .toLocaleDateString("he-IL", { day: "numeric", month: "long", year: "numeric" })
       .replace(/\s+/g, " ");

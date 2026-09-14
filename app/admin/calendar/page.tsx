@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { samplePuzzles } from "@/lib/puzzle/samplePuzzles";
+import { puzzles } from "@/lib/puzzle/puzzles";
 import {
   monthGrid,
   monthKey,
@@ -27,8 +27,8 @@ export default function CalendarPage({
 }: {
   searchParams?: { month?: string };
 }) {
-  const byDate = new Map(samplePuzzles.map((p) => [p.date, p]));
-  const sorted = [...samplePuzzles].sort((a, b) => b.date.localeCompare(a.date));
+  const byDate = new Map(puzzles.map((p) => [p.date, p]));
+  const sorted = [...puzzles].sort((a, b) => b.date.localeCompare(a.date));
   const focus = parseMonth(searchParams?.month) ?? monthOf(sorted[0]?.date ?? todayISO());
   const { year, month } = focus;
   const days = monthGrid(focus);
@@ -39,7 +39,7 @@ export default function CalendarPage({
   const prevMonth = stepMonth(focus, -1);
   const nextMonth = stepMonth(focus, 1);
 
-  const inMonth = samplePuzzles.filter((p) => p.date.startsWith(monthKey(focus)));
+  const inMonth = puzzles.filter((p) => p.date.startsWith(monthKey(focus)));
   const published = inMonth.length;
   const gaps = days.filter((d) => d.inMonth && !byDate.has(d.iso)).length;
 
@@ -51,7 +51,7 @@ export default function CalendarPage({
             className="text-2xl font-bold tracking-tight"
             style={{ fontFamily: '"David Libre", serif' }}
           >
-            🏙️ לוח השנה של החידות
+            לוח השנה של החידות
           </h1>
           <p className="puzzle-mono text-[12px] mt-1" style={{ color: "#6b6356" }}>
             Phase 3 · Calendar · {published} פורסמו · {gaps} חסרים החודש

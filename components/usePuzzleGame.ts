@@ -6,6 +6,7 @@ import {
   applyGuessToSolvableLeaf,
   applyPeek,
   applyReveal,
+  collectBrackets,
   createGameState,
   findNode,
   getSolvableLeaves,
@@ -18,7 +19,6 @@ interface InternalState {
   input: string;
   shakeNodeId: string | null;
   popNodeId: string | null;
-  tick: number;
 }
 
 type Action =
@@ -29,6 +29,7 @@ type Action =
   | { type: "peekNode"; puzzle: Puzzle; nodeId: string }
   | { type: "reveal"; puzzle: Puzzle }
   | { type: "revealNode"; puzzle: Puzzle; nodeId: string }
+  | { type: "forceComplete"; puzzle: Puzzle }
   | { type: "clearPop" }
   | { type: "clearShake" };
 
@@ -73,7 +74,6 @@ function reducer(state: InternalState, action: Action): InternalState {
           input: "",
           popNodeId: res.solvedNodeId,
           shakeNodeId: null,
-          tick: state.tick + 1,
         };
       }
       if (res.reason === "wrong") {
@@ -83,7 +83,6 @@ function reducer(state: InternalState, action: Action): InternalState {
           input: "",
           shakeNodeId: nodeId ?? nextGame.lastWrongNodeId,
           popNodeId: null,
-          tick: state.tick + 1,
         };
       }
       return state;
@@ -93,7 +92,7 @@ function reducer(state: InternalState, action: Action): InternalState {
       if (!nodeId) return state;
       const nextGame = cloneGame(state.game);
       if (!applyPeek(action.puzzle, nextGame, nodeId)) return state;
-      return { ...state, game: nextGame, tick: state.tick + 1 };
+      return { ...state, game: nextGame };
     }
     case "peekNode": {
       const nextGame = cloneGame(state.game);
@@ -103,7 +102,6 @@ function reducer(state: InternalState, action: Action): InternalState {
         ...state,
         game: nextGame,
         input: "",
-        tick: state.tick + 1,
       };
     }
     case "reveal": {
@@ -117,7 +115,6 @@ function reducer(state: InternalState, action: Action): InternalState {
         game: nextGame,
         input: "",
         popNodeId: res.solvedNodeId,
-        tick: state.tick + 1,
       };
     }
     case "revealNode": {
@@ -130,7 +127,20 @@ function reducer(state: InternalState, action: Action): InternalState {
         game: nextGame,
         input: "",
         popNodeId: res.solvedNodeId,
-        tick: state.tick + 1,
+      };
+    }
+    case "forceComplete": {
+      const ids = collectBrackets(action.puzzle.tree).map((n) => n.id);
+      const nextGame = cloneGame(state.game);
+      nextGame.solved = new Set(ids);
+      nextGame.solveOrder = [...ids];
+      nextGame.activeNodeId = null;
+      return {
+        ...state,
+        game: nextGame,
+        input: "",
+        popNodeId: null,
+        shakeNodeId: null,
       };
     }
     case "clearPop":
@@ -149,7 +159,6 @@ export function usePuzzleGame(puzzle: Puzzle) {
       input: "",
       shakeNodeId: null,
       popNodeId: null,
-      tick: 0,
     }),
   );
 
@@ -162,12 +171,12 @@ export function usePuzzleGame(puzzle: Puzzle) {
 
   const solvableLeaves = useMemo(
     () => getSolvableLeaves(puzzle.tree, state.game.solved),
-    [puzzle.tree, state.game.solved, state.tick],
+    [puzzle.tree, state.game.solved],
   );
 
   const complete = useMemo(
     () => isPuzzleComplete(puzzle.tree, state.game.solved),
-    [puzzle.tree, state.game.solved, state.tick],
+    [puzzle.tree, state.game.solved],
   );
 
   const setActive = useCallback((nodeId: string | null) => {
@@ -177,17 +186,6 @@ export function usePuzzleGame(puzzle: Puzzle) {
   const setInputValue = useCallback((value: string) => {
     dispatch({ type: "setInput", value });
   }, []);
-
-  const cycleActive = useCallback(
-    (direction: "prev" | "next") => {
-      const leaves = getSolvableLeaves(puzzle.tree, stateRef.current.game.solved);
-      if (leaves.length === 0) return;
-      const idx = leaves.findIndex((n) => n.id === stateRef.current.game.activeNodeId);
-      const next = leaves[(idx + (direction === "prev" ? -1 : 1) + leaves.length) % leaves.length];
-      if (next) dispatch({ type: "setActive", nodeId: next.id });
-    },
-    [puzzle.tree],
-  );
 
   const submit = useCallback(() => {
     dispatch({ type: "submit", puzzle });
@@ -203,10 +201,14 @@ export function usePuzzleGame(puzzle: Puzzle) {
     (nodeId: string) => dispatch({ type: "revealNode", puzzle, nodeId }),
     [puzzle],
   );
+  const forceComplete = useCallback(
+    () => dispatch({ type: "forceComplete", puzzle }),
+    [puzzle],
+  );
 
   useEffect(() => {
     if (!state.popNodeId) return;
-    const t = setTimeout(() => dispatch({ type: "clearPop" }), 420);
+    const t = setTimeout(() => dispatch({ type: "clearPop" }), 1600);
     return () => clearTimeout(t);
   }, [state.popNodeId]);
 
@@ -231,7 +233,7 @@ export function usePuzzleGame(puzzle: Puzzle) {
     }
   }, [solvableLeaves, state.game.activeNodeId, state.game.solved, puzzle.tree, complete]);
 
-  // The answer input in ControlsBar owns all typing + Enter/Tab/Escape. We
+  // The answer input in ControlsBar owns all typing + Enter/Escape. We
   // keep a tiny global fallback: if the player clicks somewhere off the input
   // and starts typing a printable character, refocus the input so no keystroke
   // is lost (matches bracket.city's "just start typing" affordance).
@@ -260,13 +262,12 @@ export function usePuzzleGame(puzzle: Puzzle) {
     complete,
     setActive,
     setInputValue,
-    cycleActive,
     submit,
     peek,
     peekNode,
     reveal,
     revealNode,
-    tick: state.tick,
+    forceComplete,
   } as const;
 }
 
