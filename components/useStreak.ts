@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { applyCompletion, emptyStreak } from "@/lib/streak";
 import type { StreakData } from "@/lib/streak";
 
-const KEY = "bc-he:streak-v1";
+const KEY = "maamar-musgar:streak-v1";
+const LEGACY_KEY = "bc-he:streak-v1";
 
 function load(): StreakData {
   if (typeof window === "undefined") return emptyStreak;
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(KEY) ?? localStorage.getItem(LEGACY_KEY);
     if (!raw) return emptyStreak;
     return { ...emptyStreak, ...JSON.parse(raw) };
   } catch {
