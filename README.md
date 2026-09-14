@@ -90,6 +90,18 @@ docs/                — מסמך התכנון המלא ומחקר עיצוב
 - [/admin/calendar](app/admin/calendar/) — לוח שנה עם תאים מלאים/ריקים; קליק על תאריך פותח את הבונה ממולא־מראש.
 - [/admin/archive](app/admin/archive/) — ארכיון חידות לעריכה.
 
+### גישה לסטודיו
+
+| משתנה סביבה | מקומי | פרודקשן (Vercel) |
+|---|---|---|
+| `WORKSPACE=local` | פותח את הסטודיו בלי סיסמה; שמירה כותבת ל־`data/puzzles.json` | לא להגדיר |
+| `ADMIN_PASSWORD` | – | מפעיל את הסטודיו מאחורי סיסמה (`/admin`) |
+| `GITHUB_TOKEN` | – | טוקן עם הרשאת `contents: write` לריפו; כל שמירה = קומיט ל־`data/puzzles.json` שמפעיל דיפלוי |
+| `GITHUB_REPO` | – | `ishay60/maamar-musgar` |
+| `GITHUB_BRANCH` | – | ברירת מחדל `main` |
+
+בפרודקשן חידה שנשמרה עולה לאוויר עם סיום הדיפלוי (כדקה).
+
 ## תכנון מפורט
 
 - מסמך התכנון המלא: [docs/bracket_city_hebrew_implementation_plan.md](docs/bracket_city_hebrew_implementation_plan.md)
