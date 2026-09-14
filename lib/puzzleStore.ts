@@ -47,7 +47,7 @@ function githubStore(token: string, repo: string, branch: string): PuzzleStore {
     async read() {
       const res = await fetch(`${url}?ref=${branch}`, { headers, cache: "no-store" });
       if (res.status === 404) return null;
-      if (!res.ok) throw new Error(`GitHub read failed: ${res.status}`);
+      if (!res.ok) throw new Error(`GitHub read failed: ${res.status} ${await res.text()}`);
       const body = (await res.json()) as { sha: string; content: string };
       sha = body.sha;
       return Buffer.from(body.content, "base64").toString("utf8");

@@ -38,7 +38,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const saved = await readSavedPuzzleInputs(store);
+  let saved: BuildPuzzleInput[];
+  try {
+    saved = await readSavedPuzzleInputs(store);
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: error instanceof Error ? error.message : "Could not read puzzle store." },
+      { status: 502 },
+    );
+  }
   if (saved.some((p) => p.id !== input.id && p.date === input.date)) {
     return NextResponse.json(
       { ok: false, error: `Another puzzle already owns date ${input.date}.` },
