@@ -145,7 +145,7 @@ export function PuzzleBuilder({
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
-        <section className="space-y-4">
+        <section className="space-y-4 min-w-0">
           <Card title="מטא־דאטה">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="תאריך (ISO)">
@@ -212,7 +212,7 @@ export function PuzzleBuilder({
           <ExportPanel puzzle={builtPuzzle} buildInput={buildInput} />
         </section>
 
-        <aside className="space-y-4">
+        <aside className="space-y-4 min-w-0">
           <Card title="עץ הפירוק">
             <TreeView tree={parsed?.tree ?? null} answers={answers} />
           </Card>
@@ -480,7 +480,7 @@ function ExportPanel({
         </div>
       ) : null}
       <pre
-        className="mt-3 rounded-md p-3 puzzle-mono text-[11px] overflow-auto max-h-64 bg-paper border border-line leading-normal"
+        className="mt-3 rounded-md p-3 puzzle-mono text-[11px] overflow-auto max-h-64 whitespace-pre-wrap break-all bg-paper border border-line leading-normal"
         dir="ltr"
       >
         {json}
