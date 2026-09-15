@@ -6,6 +6,7 @@ import { formatHebrewDate } from "../calendar";
 /**
  * Spoiler-free share grid, Wordle-style.
  * - 🟩 solved clean
+ * - 🟧 solved after a wrong guess
  * - 🟨 solved after peek
  * - 🟥 revealed
  * Order follows the player's solve order (matches bracket.city); falls back to
@@ -34,6 +35,7 @@ export function buildShareGrid(puzzle: Puzzle, state: GameState): string {
     if (!n) return "⬜";
     if (state.reveals.has(n.id)) return "🟥";
     if (state.peeks.has(n.id)) return "🟨";
+    if (state.wrongByNode[n.id]) return "🟧";
     return "🟩";
   });
   // Wrap into rows of 7 for visual density, matching bracket.city-ish share cards
@@ -53,6 +55,7 @@ export function buildShareText(
     `מאמר מוסגר · ${formatHebrewDate(puzzle.date)}`,
     buildShareGrid(puzzle, state),
     `⭐ ${extras.rankLabel} · ${extras.finalScore} נק׳` +
+      (state.wrongGuesses > 0 ? ` · ✗ ${state.wrongGuesses}` : "") +
       (extras.streak > 0 ? ` · 🔥 רצף ${extras.streak}` : ""),
   ].join("\n");
 }

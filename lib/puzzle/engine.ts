@@ -11,6 +11,8 @@ export interface GameState {
   /** Bracket IDs in the order they were solved (including reveals). */
   solveOrder: string[];
   wrongGuesses: number;
+  /** Wrong guesses per bracket id; drives the 🟧 square in the share grid. */
+  wrongByNode: Record<string, number>;
   peeks: Set<string>;
   reveals: Set<string>;
   keystrokes: number;
@@ -28,6 +30,7 @@ export function createGameState(puzzle: Puzzle): GameState {
     solved: new Set(),
     solveOrder: [],
     wrongGuesses: 0,
+    wrongByNode: {},
     peeks: new Set(),
     reveals: new Set(),
     keystrokes: 0,
@@ -103,6 +106,7 @@ export function applyGuess(
 
   if (!isCorrectAnswer(guess, node.answer ?? "", node.acceptedAnswers)) {
     state.wrongGuesses += 1;
+    state.wrongByNode[node.id] = (state.wrongByNode[node.id] ?? 0) + 1;
     state.lastWrongNodeId = node.id;
     state.lastWrongAt = Date.now();
     return { ok: false, reason: "wrong" };
@@ -152,6 +156,9 @@ export function applyGuessToSolvableLeaf(
   if (!match) {
     state.wrongGuesses += 1;
     state.lastWrongNodeId = state.activeNodeId ?? leaves[0]?.id ?? null;
+    if (state.lastWrongNodeId) {
+      state.wrongByNode[state.lastWrongNodeId] = (state.wrongByNode[state.lastWrongNodeId] ?? 0) + 1;
+    }
     state.lastWrongAt = Date.now();
     return { ok: false, reason: "wrong" };
   }
