@@ -36,6 +36,7 @@ function cloneGame(g: GameState): GameState {
     peeks: new Set(g.peeks),
     reveals: new Set(g.reveals),
     solveOrder: [...g.solveOrder],
+    wrongByNode: { ...g.wrongByNode },
   };
 }
 

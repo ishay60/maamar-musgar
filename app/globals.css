@@ -98,8 +98,8 @@ input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   padding: 0;
   border-radius: 6px;
   background: #ffffff;
-  border: 1px solid #d6cdb8;
-  box-shadow: 0 1px 0 #c9bfa8;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0 1px 0 #c6c6c6;
   color: #171412;
   font-family: "David Libre", "Frank Ruhl Libre", serif;
   font-size: 20px;
@@ -117,10 +117,10 @@ input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .keyboard { --key-h: 36px; }
   .keyboard-key { font-size: 17px; }
 }
-.keyboard-key:active { background: #f5efe0; transform: translateY(1px); box-shadow: none; }
+.keyboard-key:active { background: #ededed; transform: translateY(1px); box-shadow: none; }
 /* Modifier keys: a touch dimmer so the letters read as the primary surface */
 .keyboard-key.is-special {
-  background: #f0e9d8;
+  background: #ececec;
   font-family: "IBM Plex Mono", Menlo, ui-monospace, monospace;
   font-size: 17px;
   color: #3d362b;
