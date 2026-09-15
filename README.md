@@ -111,11 +111,21 @@ node --env-file=.env scripts/import-puzzles.ts data/puzzles.json
 
 | משתנה | ערך | למה |
 |---|---|---|
-| `ADMIN_PASSWORD` | סיסמה חזקה | מפעיל את הסטודיו מאחורי כניסה |
 | `SUPABASE_URL` | כתובת הפרויקט | מסד הנתונים |
 | `SUPABASE_SERVICE_ROLE_KEY` | service role key, שרת בלבד | קריאה וכתיבה של חידות |
 
-בלי `ADMIN_PASSWORD` הסטודיו מחזיר 404. אין להגדיר `WORKSPACE=local` בפרודקשן.
+### כניסה לסטודיו
+
+הכניסה היא בקישור קסם (magic link) של Supabase Auth, לכתובות שמופיעות בטבלת `editors` בלבד. להוספת עורך:
+
+```sql
+insert into editors (email) values ('someone@example.com');
+```
+
+ב־Supabase, תחת Authentication → URL Configuration, יש להוסיף ל־Redirect URLs את
+`https://maamar-musgar.vercel.app/api/admin/callback` ואת `http://localhost:3000/api/admin/callback`.
+
+בלי `SUPABASE_URL` ו־`SUPABASE_SERVICE_ROLE_KEY` הסטודיו מחזיר 404. אין להגדיר `WORKSPACE=local` בפרודקשן.
 
 ---
 
