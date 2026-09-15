@@ -388,6 +388,7 @@ function ExportPanel({
   buildInput: BuildPuzzleInput;
 }) {
   const [copied, setCopied] = useState<string | null>(null);
+  const [draft, setDraft] = useState(false);
   const [saveState, setSaveState] = useState<
     | { status: "idle" }
     | { status: "saving" }
@@ -417,10 +418,10 @@ function ExportPanel({
       const response = await fetch("/api/admin/puzzles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildInput),
+        body: JSON.stringify({ ...buildInput, status: draft ? "draft" : "scheduled" }),
       });
       const text = await response.text();
-      let payload: { ok?: boolean; error?: string; path?: string } = {};
+      let payload: { ok?: boolean; error?: string; status?: string } = {};
       try {
         payload = JSON.parse(text);
       } catch {
@@ -429,7 +430,7 @@ function ExportPanel({
       if (!response.ok || !payload.ok) {
         throw new Error(payload.error ?? `שמירה נכשלה (${response.status})`);
       }
-      setSaveState({ status: "saved", message: `נשמר אל ${payload.path ?? "data/puzzles.json"}` });
+      setSaveState({ status: "saved", message: payload.status === "draft" ? "נשמר כטיוטה" : "נשמר ומתוזמן" });
     } catch (error) {
       setSaveState({
         status: "error",
@@ -456,6 +457,10 @@ function ExportPanel({
         >
           {saveState.status === "saving" ? "שומר..." : "[שמירה]"}
         </button>
+        <label className="puzzle-mono text-[12px] flex items-center gap-1.5 text-muted">
+          <input type="checkbox" checked={draft} onChange={(e) => setDraft(e.target.checked)} />
+          טיוטה
+        </label>
         <button
           type="button"
           onClick={() => copy("json", json)}

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { GameContainer } from "@/components/GameContainer";
 import { isAdminEnabled } from "@/lib/adminAccess";
-import { publishedPuzzles, todayInIsrael } from "@/lib/puzzle/puzzles";
+import { todayInIsrael } from "@/lib/puzzle/puzzles";
+import { loadPublishedPuzzles } from "@/lib/puzzleStore";
 
 export const dynamic = "force-dynamic";
 
@@ -16,13 +17,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HomePage({
+export default async function HomePage({
   searchParams,
 }: {
   searchParams: { date?: string };
 }) {
   const today = todayInIsrael();
-  const available = publishedPuzzles(today);
+  const available = await loadPublishedPuzzles(today);
   const puzzle =
     available.find((p) => p.date === searchParams.date) ?? available[available.length - 1];
   if (!puzzle) {

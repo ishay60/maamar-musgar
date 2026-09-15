@@ -99,23 +99,21 @@ npm run dev        # http://localhost:3000
 
 ### איך שמירה עובדת
 
-החידות חיות בקובץ אחד: [`data/puzzles.json`](data/puzzles.json), לפי `date` (YYYY‑MM‑DD, שעון ישראל). חידה מופיעה לשחקנים רק החל מהתאריך שלה.
+החידות חיות בטבלת `puzzles` ב־Supabase (ראו [`supabase/migrations`](supabase/migrations)). כל שמירה היא upsert ונראית מיד, גם בסטודיו וגם למשחק. חידה מופיעה לשחקנים רק כשהיא **מתוזמנת** (לא טיוטה) והתאריך שלה הגיע (שעון ישראל).
 
-```
-מקומי:     [שמירה]  ──►  data/puzzles.json בדיסק  ──►  רואים מיד
-פרודקשן:   [שמירה]  ──►  קומיט ל־GitHub  ──►  דיפלוי ב־Vercel  ──►  באוויר תוך כדקה
-```
+ייבוא חד־פעמי של קובץ חידות ישן:
 
-הסטודיו עצמו קורא תמיד את הגרסה החיה, כך שחידה שנשמרה מופיעה בו מיד.
+```bash
+node --env-file=.env scripts/import-puzzles.ts data/puzzles.json
+```
 
 ### משתני סביבה (Vercel)
 
 | משתנה | ערך | למה |
 |---|---|---|
 | `ADMIN_PASSWORD` | סיסמה חזקה | מפעיל את הסטודיו מאחורי כניסה |
-| `GITHUB_TOKEN` | fine‑grained token, הרשאת **Contents: Read and write** לריפו בלבד | כל שמירה היא קומיט |
-| `GITHUB_REPO` | `ishay60/maamar-musgar` | לאן לכתוב |
-| `GITHUB_BRANCH` | `main` (ברירת מחדל) | לאיזה ענף |
+| `SUPABASE_URL` | כתובת הפרויקט | מסד הנתונים |
+| `SUPABASE_SERVICE_ROLE_KEY` | service role key, שרת בלבד | קריאה וכתיבה של חידות |
 
 בלי `ADMIN_PASSWORD` הסטודיו מחזיר 404. אין להגדיר `WORKSPACE=local` בפרודקשן.
 
@@ -139,11 +137,14 @@ lib/
   puzzle/scoring.ts    ניקוד ודרגות
   puzzle/hebrew.ts     נירמול עברית (סופיות, ניקוד, גרשיים)
   puzzle/share.ts      טקסט שיתוף
-  puzzleStore.ts       דיסק / GitHub
+  puzzleStore.ts       קריאה וכתיבה מול Supabase
+  db.ts                לקוח Supabase (שרת בלבד)
   streak.ts            לוגיקת רצף (טהורה, נבדקת)
 data/
-  puzzles.json         מאגר החידות
+  puzzles.json         חידות ישנות, לייבוא חד־פעמי בלבד
   historical-events.json  "היום בהיסטוריה" לסטודיו
+supabase/migrations/   סכמת מסד הנתונים
+scripts/import-puzzles.ts  ייבוא חידות ל־Supabase
 ```
 
 ## טכנולוגיות
