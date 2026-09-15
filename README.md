@@ -101,7 +101,7 @@ npm run dev        # http://localhost:3000
 
 החידות חיות בטבלת `puzzles` ב־Supabase (ראו [`supabase/migrations`](supabase/migrations)). כל שמירה היא upsert ונראית מיד, גם בסטודיו וגם למשחק. חידה מופיעה לשחקנים רק כשהיא **מתוזמנת** (לא טיוטה) והתאריך שלה הגיע (שעון ישראל).
 
-ייבוא חד־פעמי של קובץ חידות ישן:
+ייבוא של קובץ חידות בפורמט הישן (מערך JSON של `BuildPuzzleInput`):
 
 ```bash
 node --env-file=.env scripts/import-puzzles.ts data/puzzles.json
@@ -141,7 +141,6 @@ lib/
   db.ts                לקוח Supabase (שרת בלבד)
   streak.ts            לוגיקת רצף (טהורה, נבדקת)
 data/
-  puzzles.json         חידות ישנות, לייבוא חד־פעמי בלבד
   historical-events.json  "היום בהיסטוריה" לסטודיו
 supabase/migrations/   סכמת מסד הנתונים
 scripts/import-puzzles.ts  ייבוא חידות ל־Supabase

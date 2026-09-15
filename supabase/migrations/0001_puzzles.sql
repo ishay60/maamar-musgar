@@ -16,3 +16,7 @@ create table puzzles (
 );
 
 alter table puzzles enable row level security;
+
+-- "Automatically expose new tables" is off on the project, so grant the
+-- server role explicitly. anon and authenticated get nothing.
+grant all on puzzles to service_role;
