@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_COOKIE, isAdminAuthed, isAdminEnabled } from "@/lib/adminAccess";
-import { puzzleStore } from "@/lib/puzzleStore";
-import type { PuzzleStore } from "@/lib/puzzleStore";
+import { savePuzzle } from "@/lib/puzzleStore";
+import type { PuzzleStatus, StoredPuzzle } from "@/lib/puzzleStore";
 import { buildPuzzle } from "@/lib/puzzle/build";
 import type { BuildPuzzleInput } from "@/lib/puzzle/build";
 import type { ClueType, Difficulty } from "@/lib/puzzle/types";
@@ -15,77 +15,28 @@ export async function POST(request: NextRequest) {
   if (!isAdminAuthed(request.cookies.get(ADMIN_COOKIE)?.value)) {
     return NextResponse.json({ ok: false, error: "Unauthorized." }, { status: 401 });
   }
-  const store = puzzleStore();
-  if (!store) {
-    return NextResponse.json(
-      { ok: false, error: "No puzzle store configured (set GITHUB_TOKEN and GITHUB_REPO)." },
-      { status: 503 },
-    );
-  }
-
-  let input: BuildPuzzleInput;
+  let input: StoredPuzzle;
   try {
     const body = await request.json();
     input = parseBuildPuzzleInput(body);
     buildPuzzle(input);
   } catch (error) {
     return NextResponse.json(
-      {
-        ok: false,
-        error: error instanceof Error ? error.message : "Invalid puzzle payload.",
-      },
+      { ok: false, error: error instanceof Error ? error.message : "Invalid puzzle payload." },
       { status: 400 },
     );
   }
 
-  let saved: BuildPuzzleInput[];
   try {
-    saved = await readSavedPuzzleInputs(store);
+    await savePuzzle(input);
   } catch (error) {
-    return NextResponse.json(
-      { ok: false, error: error instanceof Error ? error.message : "Could not read puzzle store." },
-      { status: 502 },
-    );
+    const message = error instanceof Error ? error.message : "Save failed.";
+    return NextResponse.json({ ok: false, error: message }, { status: message.includes("already owns") ? 409 : 502 });
   }
-  if (saved.some((p) => p.id !== input.id && p.date === input.date)) {
-    return NextResponse.json(
-      { ok: false, error: `Another puzzle already owns date ${input.date}.` },
-      { status: 409 },
-    );
-  }
-  const idx = saved.findIndex((p) => p.id === input.id);
-  const next = saved.slice();
-  if (idx >= 0) {
-    next[idx] = input;
-  } else {
-    next.push(input);
-  }
-  next.sort((a, b) => a.date.localeCompare(b.date));
-
-  let location: string;
-  try {
-    ({ location } = await store.write(
-      `${JSON.stringify(next, null, 2)}\n`,
-      `puzzle: ${idx >= 0 ? "update" : "add"} ${input.id} (${input.date})`,
-    ));
-  } catch (error) {
-    return NextResponse.json(
-      { ok: false, error: error instanceof Error ? error.message : "Save failed." },
-      { status: 502 },
-    );
-  }
-
-  return NextResponse.json({ ok: true, id: input.id, date: input.date, count: next.length, path: location });
+  return NextResponse.json({ ok: true, id: input.id, date: input.date, status: input.status });
 }
 
-async function readSavedPuzzleInputs(store: PuzzleStore): Promise<BuildPuzzleInput[]> {
-  const raw = await store.read();
-  if (!raw) return [];
-  const parsed = JSON.parse(raw);
-  return Array.isArray(parsed) ? parsed.map(parseBuildPuzzleInput) : [];
-}
-
-function parseBuildPuzzleInput(value: unknown): BuildPuzzleInput {
+function parseBuildPuzzleInput(value: unknown): StoredPuzzle {
   if (!isRecord(value)) throw new Error("Puzzle payload must be an object.");
   const id = requiredString(value.id, "id");
   const date = requiredString(value.date, "date");
@@ -96,6 +47,7 @@ function parseBuildPuzzleInput(value: unknown): BuildPuzzleInput {
   return {
     id,
     date,
+    status: parseStatus(value.status),
     bracketString,
     specs,
     finalSentence,
@@ -122,6 +74,12 @@ function parseSpecs(value: unknown): BuildPuzzleInput["specs"] {
       difficulty: parseDifficulty(spec.difficulty, `specs[${idx}].difficulty`),
     };
   });
+}
+
+function parseStatus(value: unknown): PuzzleStatus {
+  if (value == null || value === "scheduled") return "scheduled";
+  if (value === "draft") return "draft";
+  throw new Error("status is invalid.");
 }
 
 const DIFFICULTIES: Difficulty[] = ["easy", "medium", "hard"];

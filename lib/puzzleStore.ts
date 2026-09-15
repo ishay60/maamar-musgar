@@ -1,88 +1,87 @@
-import { readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
+import { db } from "./db";
 import type { BuildPuzzleInput } from "./puzzle/build";
 import type { Puzzle } from "./puzzle/types";
-import { buildAll, puzzles as builtPuzzles } from "./puzzle/puzzles";
+import { buildAll } from "./puzzle/puzzles";
 
-/**
- * Where data/puzzles.json lives when the admin saves.
- *  - Local dev: the working-tree file.
- *  - Deployed: the file in the GitHub repo. Each save is a commit, which
- *    triggers a redeploy, so the new puzzle goes live with the next build.
- */
-export interface PuzzleStore {
-  read(): Promise<string | null>;
-  write(json: string, message: string): Promise<{ location: string }>;
+export type PuzzleStatus = "draft" | "scheduled";
+export type StoredPuzzle = BuildPuzzleInput & { status: PuzzleStatus };
+
+/** Database row shape for the `puzzles` table. */
+export interface PuzzleRow {
+  id: string;
+  date: string;
+  status: PuzzleStatus;
+  bracket_string: string;
+  specs: BuildPuzzleInput["specs"];
+  final_sentence: string;
+  historical_context: string | null;
+  max_score: number | null;
+  tags: string[];
+  difficulty: BuildPuzzleInput["difficulty"] | null;
 }
 
-const FILE = "data/puzzles.json";
-
-export function puzzleStore(env = process.env): PuzzleStore | null {
-  if (env.GITHUB_TOKEN && env.GITHUB_REPO) {
-    return githubStore(env.GITHUB_TOKEN, env.GITHUB_REPO, env.GITHUB_BRANCH ?? "main");
-  }
-  if (env.NODE_ENV === "development") return localStore();
-  return null;
-}
-
-function localStore(): PuzzleStore {
-  const file = path.join(process.cwd(), FILE);
+export function rowToInput(row: PuzzleRow): StoredPuzzle {
   return {
-    async read() {
-      return readFile(file, "utf8").catch(() => null);
-    },
-    async write(json) {
-      await writeFile(file, json, "utf8");
-      return { location: FILE };
-    },
+    id: row.id,
+    date: row.date,
+    status: row.status,
+    bracketString: row.bracket_string,
+    specs: row.specs,
+    finalSentence: row.final_sentence,
+    historicalContext: row.historical_context ?? undefined,
+    maxScore: row.max_score ?? undefined,
+    tags: row.tags,
+    difficulty: row.difficulty ?? undefined,
   };
 }
 
-function githubStore(token: string, repo: string, branch: string): PuzzleStore {
-  const url = `https://api.github.com/repos/${repo}/contents/${FILE}`;
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    Accept: "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28",
-  };
-  let sha: string | undefined;
+export function inputToRow(p: StoredPuzzle): PuzzleRow {
   return {
-    async read() {
-      const res = await fetch(`${url}?ref=${branch}`, { headers, cache: "no-store" });
-      if (res.status === 404) return null;
-      if (!res.ok) throw new Error(`GitHub read failed: ${res.status} ${await res.text()}`);
-      const body = (await res.json()) as { sha: string; content: string };
-      sha = body.sha;
-      return Buffer.from(body.content, "base64").toString("utf8");
-    },
-    async write(json, message) {
-      const res = await fetch(url, {
-        method: "PUT",
-        headers,
-        body: JSON.stringify({
-          message,
-          branch,
-          sha,
-          content: Buffer.from(json).toString("base64"),
-        }),
-      });
-      if (!res.ok) throw new Error(`GitHub write failed: ${res.status} ${await res.text()}`);
-      return { location: `${repo}@${branch}:${FILE} (deploying)` };
-    },
+    id: p.id,
+    date: p.date,
+    status: p.status,
+    bracket_string: p.bracketString,
+    specs: p.specs,
+    final_sentence: p.finalSentence,
+    historical_context: p.historicalContext ?? null,
+    max_score: p.maxScore ?? null,
+    tags: p.tags ?? [],
+    difficulty: p.difficulty ?? null,
   };
 }
 
-/**
- * Live puzzle list for the admin: what is in the store right now (a save is
- * visible immediately, before the redeploy). Falls back to the built-in copy
- * when no store is configured or it cannot be read.
- */
+export const NOT_CONFIGURED = "Database not configured (set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY).";
+
+const COLUMNS =
+  "id,date,status,bracket_string,specs,final_sentence,historical_context,max_score,tags,difficulty";
+
+async function loadRows(publishedBefore?: string): Promise<PuzzleRow[]> {
+  const client = db();
+  if (!client) return [];
+  let q = client.from("puzzles").select(COLUMNS).order("date");
+  if (publishedBefore) q = q.eq("status", "scheduled").lte("date", publishedBefore);
+  const { data, error } = await q;
+  if (error) throw new Error(`Puzzle read failed: ${error.message}`);
+  return (data ?? []) as unknown as PuzzleRow[];
+}
+
+/** Everything in the store, drafts included. For the studio. */
 export async function loadLivePuzzles(): Promise<Puzzle[]> {
-  const raw = await puzzleStore()?.read().catch(() => null);
-  if (!raw) return builtPuzzles;
-  try {
-    return buildAll(JSON.parse(raw) as BuildPuzzleInput[]);
-  } catch {
-    return builtPuzzles;
-  }
+  return buildAll((await loadRows()).map(rowToInput));
+}
+
+/** Scheduled puzzles dated today or earlier. For players. Never ships future puzzles. */
+export async function loadPublishedPuzzles(today: string): Promise<Puzzle[]> {
+  return buildAll((await loadRows(today)).map(rowToInput));
+}
+
+/** Insert or update one puzzle. Throws with a readable message on date conflicts. */
+export async function savePuzzle(input: StoredPuzzle): Promise<void> {
+  const client = db();
+  if (!client) throw new Error(NOT_CONFIGURED);
+  const { error } = await client
+    .from("puzzles")
+    .upsert({ ...inputToRow(input), updated_at: new Date().toISOString() });
+  if (error?.code === "23505") throw new Error(`Another puzzle already owns date ${input.date}.`);
+  if (error) throw new Error(`Puzzle save failed: ${error.message}`);
 }
