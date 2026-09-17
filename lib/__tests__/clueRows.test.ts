@@ -15,6 +15,10 @@ describe("realignRows", () => {
     expect(next.map((r) => r.answer)).toEqual(["1", "2"]);
     expect(next[1].clue).toBe("bx");
   });
+  it("restores a remembered answer for a clue typed again", () => {
+    const next = realignRows([], ["a"], { a: row("a", "1") });
+    expect(next[0].answer).toBe("1");
+  });
   it("drops rows whose bracket was removed", () => {
     expect(realignRows([row("a", "1"), row("b", "2")], ["b"]).map((r) => r.answer)).toEqual(["2"]);
   });
