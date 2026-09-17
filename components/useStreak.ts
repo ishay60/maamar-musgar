@@ -26,11 +26,16 @@ function save(data: StreakData): void {
   }
 }
 
-export function useStreak(today: string) {
+/** `seed` is the signed-in player's server history; it wins over the local cache when present. */
+export function useStreak(today: string, seed?: StreakData) {
   const [data, setData] = useState<StreakData>(emptyStreak);
 
   useEffect(() => {
-    setData(load());
+    const local = load();
+    const next = seed ? { ...seed, completed: { ...local.completed, ...seed.completed } } : local;
+    setData(next);
+    if (seed) save(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const recordCompletion = (puzzleDate: string, score: number, rank: string) => {

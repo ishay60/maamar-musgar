@@ -10,8 +10,13 @@ import {
 } from "@/lib/puzzle";
 import type { BracketSpec, BuildPuzzleInput, Difficulty, Puzzle } from "@/lib/puzzle";
 import { DIFFICULTY_EMOJI, DIFFICULTY_LABEL_HE } from "@/lib/puzzle";
-import { AnswersTable, emptyAnswerRow } from "./AnswersTable";
+import { AnswersTable } from "./AnswersTable";
 import type { AnswerRow } from "./AnswersTable";
+import { realignRows } from "@/lib/clueRows";
+import { clueSummary, collectBrackets } from "@/lib/puzzle";
+import type { LibraryClue } from "@/lib/clueLibrary";
+import type { PuzzleStats } from "@/lib/results";
+import { PuzzleStatsCard } from "./PuzzleStatsCard";
 import { EventSuggestions } from "./EventSuggestions";
 import { GameContainerPreview } from "./GameContainerPreview";
 import { TreeView } from "./TreeView";
@@ -21,9 +26,11 @@ import { todayInIsrael } from "@/lib/puzzle/puzzles";
 export function PuzzleBuilder({
   initialDate,
   initialPuzzle,
+  stats,
 }: {
   initialDate?: string;
   initialPuzzle?: Puzzle;
+  stats?: PuzzleStats | null;
 } = {}) {
   const seed = initialPuzzle ? puzzleToSeed(initialPuzzle) : null;
   const editingId = initialPuzzle?.id ?? null;
@@ -47,19 +54,19 @@ export function PuzzleBuilder({
     }
   }, [bracketString]);
 
-  // Keep the rows array length in sync with the parsed bracket count.
+  // Rows follow their clue text, so editing the string never shifts answers onto other brackets.
   useEffect(() => {
-    const target = parsed?.bracketOrder.length ?? 0;
-    if (rows.length === target) return;
-    setRows((prev) => {
-      if (prev.length === target) return prev;
-      if (prev.length < target) {
-        return [...prev, ...Array.from({ length: target - prev.length }, emptyAnswerRow)];
-      }
-      return prev.slice(0, target);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const clues = (parsed?.bracketOrder ?? []).map(clueSummary);
+    setRows((prev) => (prev.map((r) => r.clue).join("\0") === clues.join("\0") ? prev : realignRows(prev, clues)));
   }, [parsed]);
+
+  const [library, setLibrary] = useState<LibraryClue[]>([]);
+  useEffect(() => {
+    fetch("/api/admin/clues")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => d?.ok && setLibrary(d.clues))
+      .catch(() => {});
+  }, []);
 
   const answers = useMemo(() => rows.map((r) => r.answer), [rows]);
 
@@ -130,6 +137,10 @@ export function PuzzleBuilder({
           </p>
         </div>
         <nav className="puzzle-mono text-[13px] flex items-center gap-3 text-muted">
+          <Link href="/admin/dashboard" className="underline-offset-4 hover:underline">
+            לוח בקרה →
+          </Link>
+          <span className="opacity-40">·</span>
           <Link href={`/admin/calendar?month=${date.slice(0, 7)}`} className="underline-offset-4 hover:underline">
             לוח שנה →
           </Link>
@@ -195,6 +206,8 @@ export function PuzzleBuilder({
             <AnswersTable
               brackets={parsed?.bracketOrder ?? []}
               rows={rows}
+              library={library}
+              editingId={editingId}
               onChange={setRows}
             />
           </Card>
@@ -213,6 +226,11 @@ export function PuzzleBuilder({
         </section>
 
         <aside className="space-y-4 min-w-0">
+          {stats && initialPuzzle ? (
+            <Card title="איך הלך לפותרים">
+              <PuzzleStatsCard stats={stats} tree={initialPuzzle.tree} />
+            </Card>
+          ) : null}
           <Card title="עץ הפירוק">
             <TreeView tree={parsed?.tree ?? null} answers={answers} />
           </Card>
@@ -509,7 +527,8 @@ function puzzleToSeed(puzzle: Puzzle) {
     finalSentence: input.finalSentence,
     historicalContext: input.historicalContext ?? "",
     bracketString: input.bracketString,
-    rows: input.specs.map<AnswerRow>((s) => ({
+    rows: input.specs.map<AnswerRow>((s, i) => ({
+      clue: clueSummary(collectBrackets(puzzle.tree)[i]),
       answer: s.answer,
       accepted: (s.acceptedAnswers ?? []).join(", "),
       difficulty: (s.difficulty ?? "") as AnswerRow["difficulty"],

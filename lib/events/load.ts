@@ -14,7 +14,7 @@ export function monthDayFromIso(iso: string): string | null {
   return `${m[1]}-${m[2]}`;
 }
 
-async function loadAllEvents(): Promise<HistoricalEvent[]> {
+export async function loadAllEvents(): Promise<HistoricalEvent[]> {
   const raw = await readFile(DATA_FILE, "utf8").catch(() => "[]");
   const parsed = JSON.parse(raw);
   return Array.isArray(parsed) ? parsed.filter(isHistoricalEvent) : [];

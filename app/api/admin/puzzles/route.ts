@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_COOKIE, isAdminAuthed, isAdminEnabled } from "@/lib/adminAccess";
+import { syncClues } from "@/lib/clueLibrary";
 import { savePuzzle } from "@/lib/puzzleStore";
 import type { PuzzleStatus, StoredPuzzle } from "@/lib/puzzleStore";
 import { buildPuzzle } from "@/lib/puzzle/build";
@@ -29,6 +30,7 @@ export async function POST(request: NextRequest) {
 
   try {
     await savePuzzle(input);
+    await syncClues(input);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Save failed.";
     return NextResponse.json({ ok: false, error: message }, { status: message.includes("already owns") ? 409 : 502 });
