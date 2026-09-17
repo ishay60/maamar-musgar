@@ -30,7 +30,8 @@ export async function POST(request: NextRequest) {
 
   try {
     await savePuzzle(input);
-    await syncClues(input);
+    // The library is a convenience index; never let it fail a save.
+    await syncClues(input).catch((e) => console.error(e));
   } catch (error) {
     const message = error instanceof Error ? error.message : "Save failed.";
     return NextResponse.json({ ok: false, error: message }, { status: message.includes("already owns") ? 409 : 502 });
