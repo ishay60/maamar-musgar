@@ -137,6 +137,10 @@ export function PuzzleBuilder({
           </p>
         </div>
         <nav className="puzzle-mono text-[13px] flex items-center gap-3 text-muted">
+          <Link href="/admin/dashboard" className="underline-offset-4 hover:underline">
+            לוח בקרה →
+          </Link>
+          <span className="opacity-40">·</span>
           <Link href={`/admin/calendar?month=${date.slice(0, 7)}`} className="underline-offset-4 hover:underline">
             לוח שנה →
           </Link>

@@ -60,6 +60,10 @@ export default async function CalendarPage({
             ← סטודיו
           </Link>
           <span className="opacity-40">·</span>
+          <Link href="/admin/dashboard" className="underline-offset-4 hover:underline">
+            לוח בקרה
+          </Link>
+          <span className="opacity-40">·</span>
           <Link href="/admin/archive" className="underline-offset-4 hover:underline">
             ארכיון
           </Link>

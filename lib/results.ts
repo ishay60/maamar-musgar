@@ -134,3 +134,17 @@ export async function playerEmail(id: string): Promise<string | null> {
   const { data } = await client.from("players").select("email").eq("id", id).maybeSingle();
   return data?.email ?? null;
 }
+
+/** Plays and average score per puzzle, for the dashboard month view. */
+export async function playsByPuzzle(puzzleIds: string[]): Promise<Record<string, { plays: number; avgScore: number }>> {
+  const client = db();
+  const out: Record<string, { plays: number; sum: number }> = {};
+  if (!client || puzzleIds.length === 0) return {};
+  const { data } = await client.from("results").select("puzzle_id,score").in("puzzle_id", puzzleIds);
+  for (const r of (data ?? []) as { puzzle_id: string; score: number }[]) {
+    out[r.puzzle_id] ??= { plays: 0, sum: 0 };
+    out[r.puzzle_id].plays += 1;
+    out[r.puzzle_id].sum += r.score;
+  }
+  return Object.fromEntries(Object.entries(out).map(([id, v]) => [id, { plays: v.plays, avgScore: Math.round(v.sum / v.plays) }]));
+}
