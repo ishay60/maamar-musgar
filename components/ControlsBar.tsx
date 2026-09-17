@@ -14,7 +14,10 @@ export function ControlsBar({ game }: { game: UsePuzzleGame }) {
   // Keep focus on the input so every keystroke lands here, and re-focus when
   // the active bracket advances. On mobile the input is hidden and focus()
   // is a no-op — taps on the on-screen keyboard drive input directly.
+  // Never yank focus away from another field (the studio's answer inputs, while the preview mounts).
   useEffect(() => {
+    const a = document.activeElement;
+    if (a && a !== inputRef.current && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;
     inputRef.current?.focus();
   }, [activeId, game.complete]);
 
@@ -47,7 +50,6 @@ export function ControlsBar({ game }: { game: UsePuzzleGame }) {
           ref={inputRef}
           type="text"
           dir="auto"
-          autoFocus
           inputMode="text"
           autoComplete="off"
           autoCorrect="off"
