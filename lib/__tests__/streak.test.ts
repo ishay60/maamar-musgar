@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyCompletion, emptyStreak } from "../streak";
+import { applyCompletion, deriveStreak, emptyStreak } from "../streak";
 
 const done = (d: string, current: number, last: string | null = d) => ({
   ...emptyStreak,
@@ -39,5 +39,19 @@ describe("applyCompletion", () => {
   it("ignores replays of an already completed puzzle", () => {
     const prev = done("2026-05-01", 3);
     expect(applyCompletion(prev, "2026-05-01", "2026-05-01", 50, "r")).toBe(prev);
+  });
+});
+
+describe("deriveStreak", () => {
+  it("counts the run ending today or yesterday", () => {
+    const s = deriveStreak(["2026-05-01", "2026-05-02", "2026-05-04", "2026-05-05"], "2026-05-06");
+    expect(s).toEqual({ current: 2, longest: 2, lastPuzzleDate: "2026-05-05" });
+  });
+  it("is zero after a gap, longest kept", () => {
+    const s = deriveStreak(["2026-05-01", "2026-05-02", "2026-05-03"], "2026-05-10");
+    expect(s).toEqual({ current: 0, longest: 3, lastPuzzleDate: "2026-05-03" });
+  });
+  it("handles no history", () => {
+    expect(deriveStreak([], "2026-05-10")).toEqual({ current: 0, longest: 0, lastPuzzleDate: null });
   });
 });

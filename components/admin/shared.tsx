@@ -1,11 +1,4 @@
-import type { PuzzleNode } from "@/lib/puzzle";
-
-/** Bracket clue text with nested brackets collapsed to "[…]". */
-export function clueSummary(node: PuzzleNode): string {
-  return (node.children ?? [])
-    .map((c) => (c.type === "text" ? c.content ?? "" : "[…]"))
-    .join("");
-}
+export { clueSummary } from "@/lib/puzzle";
 
 export function Empty({ text, tone = "muted" }: { text: string; tone?: "muted" | "error" }) {
   return (

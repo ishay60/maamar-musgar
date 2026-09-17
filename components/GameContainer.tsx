@@ -1,16 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { computeScore, findNode, RANK_LABEL_HE } from "@/lib/puzzle";
 import type { Puzzle } from "@/lib/puzzle";
+import { getDeviceId } from "@/lib/player";
+import type { StreakData } from "@/lib/streak";
 import { AnswerBank } from "./AnswerBank";
+import { CalendarPopover } from "./CalendarPopover";
 import { Confetti } from "./Confetti";
 import { ControlsBar } from "./ControlsBar";
 import { EndGameScreen } from "./EndGameScreen";
 import { HelpDialog } from "./HelpDialog";
 import { HUD } from "./HUD";
 import { PuzzleBoard } from "./PuzzleBoard";
+import { StatsDialog } from "./StatsDialog";
 import { usePuzzleGame } from "./usePuzzleGame";
 import { useStreak } from "./useStreak";
 
@@ -21,14 +25,20 @@ export interface GameContainerProps {
   /** Today's date in Israel; only this puzzle counts toward the streak. */
   today: string;
   studioEnabled: boolean;
+  /** Signed-in player: email plus server-side history. Null when anonymous. */
+  account: { email: string; history: StreakData } | null;
 }
 
 /** Mount with `key={puzzle.id}` so switching dates fully resets the game state. */
-export function GameContainer({ puzzle, dates, today, studioEnabled }: GameContainerProps) {
+export function GameContainer({ puzzle, dates, today, studioEnabled, account }: GameContainerProps) {
   const router = useRouter();
+  const loginFlag = useSearchParams().get("login");
   const game = usePuzzleGame(puzzle);
-  const streak = useStreak(today);
+  const streak = useStreak(today, account?.history);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(!!loginFlag);
+  const [percentile, setPercentile] = useState<{ plays: number; percentile: number } | null>(null);
   const [announcement, setAnnouncement] = useState("");
   const setDate = (d: string) => router.replace(`/?date=${d}`);
 
@@ -36,6 +46,26 @@ export function GameContainer({ puzzle, dates, today, studioEnabled }: GameConta
     if (!game.complete) return;
     const score = computeScore(puzzle, game.game);
     streak.recordCompletion(puzzle.date, score.finalScore, RANK_LABEL_HE[score.rank]);
+    const g = game.game;
+    fetch("/api/results", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        puzzleId: puzzle.id,
+        deviceId: getDeviceId(),
+        score: score.finalScore,
+        rank: score.rank,
+        wrongGuesses: g.wrongGuesses,
+        wrongByNode: g.wrongByNode,
+        peeks: [...g.peeks],
+        reveals: [...g.reveals],
+        solveOrder: g.solveOrder,
+        durationSeconds: Math.round((Date.now() - g.startedAt) / 1000),
+      }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => d?.ok && setPercentile({ plays: d.plays, percentile: d.percentile }))
+      .catch(() => {});
     setAnnouncement(
       `נפתר! דרגה ${RANK_LABEL_HE[score.rank]}, ניקוד ${score.finalScore}. המשפט המלא: ${puzzle.finalSentence}.`,
     );
@@ -94,6 +124,8 @@ export function GameContainer({ puzzle, dates, today, studioEnabled }: GameConta
               onPrev={() => prev && setDate(prev)}
               onNext={() => next && setDate(next)}
               onShowHelp={() => setHelpOpen(true)}
+              onShowCalendar={() => setCalendarOpen(true)}
+              onShowStats={() => setStatsOpen(true)}
             />
           </div>
         </div>
@@ -123,6 +155,7 @@ export function GameContainer({ puzzle, dates, today, studioEnabled }: GameConta
           game={game}
           streak={streak.data.current}
           longestStreak={streak.data.longest}
+          percentile={percentile}
         />
       ) : null}
 
@@ -142,6 +175,26 @@ export function GameContainer({ puzzle, dates, today, studioEnabled }: GameConta
       </footer>
 
       <HelpDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
+      {calendarOpen ? (
+        <CalendarPopover
+          dates={dates}
+          completed={streak.data.completed}
+          current={puzzle.date}
+          today={today}
+          streak={streak.data.current}
+          onPick={setDate}
+          onClose={() => setCalendarOpen(false)}
+        />
+      ) : null}
+      {statsOpen ? (
+        <StatsDialog
+          data={streak.data}
+          email={account?.email ?? null}
+          loginFlag={loginFlag}
+          back={`/?date=${puzzle.date}`}
+          onClose={() => setStatsOpen(false)}
+        />
+      ) : null}
 
       <div
         aria-live="polite"

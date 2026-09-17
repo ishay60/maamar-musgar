@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PuzzleBuilder } from "@/components/admin/PuzzleBuilder";
 import { todayInIsrael } from "@/lib/puzzle/puzzles";
 import { loadLivePuzzles } from "@/lib/puzzleStore";
+import { puzzleStats } from "@/lib/results";
 
 export const dynamic = "force-dynamic";
 
@@ -35,5 +36,6 @@ export default async function AdminPage({
       ? requestedDate
       : undefined;
 
-  return <PuzzleBuilder initialDate={initialDate} initialPuzzle={initialPuzzle} />;
+  const stats = initialPuzzle ? await puzzleStats(initialPuzzle.id).catch(() => null) : null;
+  return <PuzzleBuilder initialDate={initialDate} initialPuzzle={initialPuzzle} stats={stats} />;
 }

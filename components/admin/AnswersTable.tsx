@@ -1,39 +1,46 @@
 "use client";
 
 import type { PuzzleNode } from "@/lib/puzzle";
+import type { LibraryClue } from "@/lib/clueLibrary";
+import { emptyAnswerRow } from "@/lib/clueRows";
+import type { AnswerRow } from "@/lib/clueRows";
 import { clueSummary, Empty } from "./shared";
 
-export interface AnswerRow {
-  answer: string;
-  accepted: string; // comma-separated alternatives
-  difficulty: "" | "easy" | "medium" | "hard";
-  clueType: "" | "definition" | "fill-blank" | "trivia" | "wordplay" | "association";
-}
+export type { AnswerRow } from "@/lib/clueRows";
+export { emptyAnswerRow } from "@/lib/clueRows";
 
-export const emptyAnswerRow = (): AnswerRow => ({
-  answer: "",
-  accepted: "",
-  difficulty: "",
-  clueType: "",
-});
+const norm = (s: string) => s.replace(/[\s"'״׳.,?!]/g, "");
 
 /**
- * Per-bracket answer editor. One row per bracket in order of appearance, with clue
- * summary, required answer, optional accepted-variants, difficulty, clue type.
+ * Per-bracket answer editor, one row per bracket keyed by clue text. Under each
+ * row: clues from earlier puzzles that look like this one; click to reuse.
  */
 export function AnswersTable({
   brackets,
   rows,
+  library,
+  editingId,
   onChange,
 }: {
   brackets: PuzzleNode[];
   rows: AnswerRow[];
+  library: LibraryClue[];
+  editingId: string | null;
   onChange: (next: AnswerRow[]) => void;
 }) {
   const update = (idx: number, patch: Partial<AnswerRow>) => {
     const next = rows.slice();
     next[idx] = { ...(next[idx] ?? emptyAnswerRow()), ...patch };
     onChange(next);
+  };
+  const suggest = (clue: string): LibraryClue[] => {
+    const key = norm(clue);
+    if (key.length < 3) return [];
+    const seen = new Set<string>();
+    return library
+      .filter((c) => c.puzzleId !== editingId && (norm(c.clue).includes(key) || key.includes(norm(c.clue))))
+      .filter((c) => !seen.has(c.clue + c.answer) && seen.add(c.clue + c.answer))
+      .slice(0, 4);
   };
 
   if (brackets.length === 0) {
@@ -44,7 +51,8 @@ export function AnswersTable({
     <div className="space-y-2">
       {brackets.map((node, idx) => {
         const summary = clueSummary(node);
-        const row = rows[idx] ?? emptyAnswerRow();
+        const row = rows[idx] ?? emptyAnswerRow(summary);
+        const hits = suggest(summary);
         return (
           <div
             key={node.id}
@@ -56,9 +64,7 @@ export function AnswersTable({
             >
               {idx}
             </div>
-            <div
-              className="text-[13px] leading-snug text-gray-700 font-hebrew"
-            >
+            <div className="text-[13px] leading-snug text-gray-700 font-hebrew">
               {summary || <span className="opacity-40">(ריק)</span>}
             </div>
             <input
@@ -103,6 +109,29 @@ export function AnswersTable({
                 className="w-full rounded-md px-2 py-1 text-[12px] puzzle-mono border border-line bg-white"
               />
             </div>
+            {hits.length ? (
+              <div className="sm:col-span-5 flex flex-wrap gap-1.5 items-center puzzle-mono text-[11px]">
+                <span className="text-muted">כבר שאלתם:</span>
+                {hits.map((c) => (
+                  <button
+                    key={c.puzzleId + c.clue + c.answer}
+                    type="button"
+                    title={`מתוך ${c.puzzleId}`}
+                    onClick={() =>
+                      update(idx, {
+                        answer: c.answer,
+                        accepted: c.acceptedAnswers.join(", "),
+                        difficulty: c.difficulty ?? "",
+                        clueType: c.clueType ?? "",
+                      })
+                    }
+                    className="rounded-full px-2 py-0.5 border border-violet-200 bg-violet-50 text-violet-900 hover:bg-violet-100"
+                  >
+                    [{c.clue}] = {c.answer}
+                  </button>
+                ))}
+              </div>
+            ) : null}
           </div>
         );
       })}

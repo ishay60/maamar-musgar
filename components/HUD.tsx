@@ -14,6 +14,8 @@ export function HUD({
   onPrev,
   onNext,
   onShowHelp,
+  onShowCalendar,
+  onShowStats,
 }: {
   puzzle: Puzzle;
   game: UsePuzzleGame;
@@ -23,6 +25,8 @@ export function HUD({
   onPrev: () => void;
   onNext: () => void;
   onShowHelp: () => void;
+  onShowCalendar: () => void;
+  onShowStats: () => void;
 }) {
   const liveScore = computeLiveScore(puzzle, game.game);
   const solvedCount = game.game.solved.size;
@@ -62,7 +66,25 @@ export function HUD({
         </div>
       </div>
 
+      <div className="flex items-center gap-1.5">
+        <IconButton label="לוח חידות" onClick={onShowCalendar}>📅</IconButton>
+        <IconButton label="הסטטיסטיקות שלי" onClick={onShowStats}>👤</IconButton>
+      </div>
     </div>
+  );
+}
+
+function IconButton({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+      className="w-8 h-8 rounded-full border border-[#e7e0d0] hover:bg-[#e7e0d0]/40 transition flex items-center justify-center text-[14px]"
+    >
+      {children}
+    </button>
   );
 }
 

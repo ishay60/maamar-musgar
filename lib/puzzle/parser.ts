@@ -112,3 +112,10 @@ export function reconstructSentence(tree: PuzzleNode): string {
   };
   return visit(tree);
 }
+
+/** Bracket clue text with nested brackets collapsed to "[…]". */
+export function clueSummary(node: PuzzleNode): string {
+  return (node.children ?? [])
+    .map((c) => (c.type === "text" ? c.content ?? "" : "[…]"))
+    .join("");
+}
