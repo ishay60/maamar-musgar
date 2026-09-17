@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { buildShareText, computeScore, RANK_LABEL_HE } from "@/lib/puzzle";
 import type { Puzzle } from "@/lib/puzzle";
+import { AnswerBank } from "./AnswerBank";
 import type { UsePuzzleGame } from "./usePuzzleGame";
 
 export function EndGameScreen({
@@ -10,11 +11,13 @@ export function EndGameScreen({
   game,
   streak,
   longestStreak,
+  percentile,
 }: {
   puzzle: Puzzle;
   game: UsePuzzleGame;
   streak: number;
   longestStreak: number;
+  percentile: { plays: number; percentile: number } | null;
 }) {
   const score = computeScore(puzzle, game.game);
   const rankLabel = RANK_LABEL_HE[score.rank];
@@ -137,6 +140,13 @@ export function EndGameScreen({
         <Breakdown label="רצף נוכחי" value={`🔥 ${streak}`} />
         <Breakdown label="רצף שיא" value={`★ ${longestStreak}`} />
       </div>
+      {percentile && percentile.plays > 1 ? (
+        <div className="mt-2 puzzle-mono text-[12px]" style={{ color: "#047857" }}>
+          טוב יותר מ־{percentile.percentile}% מתוך {percentile.plays} פותרים
+        </div>
+      ) : null}
+
+      <AnswerBank tree={puzzle.tree} game={game} />
 
       <div
         className="mt-5 rounded-lg p-4 puzzle-mono text-[15px] whitespace-pre-wrap text-center"

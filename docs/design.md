@@ -15,8 +15,9 @@ One Postgres project holds everything. Git no longer stores puzzles.
 | Table | Columns |
 |---|---|
 | `puzzles` | id, date (unique), status (`draft` / `scheduled`), bracket_string, specs jsonb, final_sentence, historical_context, tags, difficulty, updated_by, updated_at |
-| `results` | id, puzzle_id, player_id, score, rank, wrong_guesses, peeks, reveals, hardest_bracket, solve_order int[], duration_seconds, created_at. Unique (puzzle_id, player_id). Index (puzzle_id, score). |
-| `players` | id, auth_user_id nullable, created_at |
+| `results` | puzzle_id, player_id, score, rank, wrong_guesses, wrong_by_node jsonb, peeks, reveals, solve_order, duration_seconds, live, created_at. PK (puzzle_id, player_id). Index (puzzle_id, score). `live` = solved on the puzzle's own date; only live results move the streak. |
+| `players` | id (device uuid or server uuid), email nullable unique, created_at |
+| `clues` | puzzle_id, position, clue, answer, accepted_answers, clue_type, difficulty. Rewritten on every puzzle save; the studio suggests "you already asked this" from it. |
 | `editors` | email |
 | `events_cache` | month_day, source, payload jsonb, fetched_at |
 
@@ -38,8 +39,9 @@ One Postgres project holds everything. Git no longer stores puzzles.
 - Anonymous by default. A device id is generated on first visit, stored in localStorage and mirrored to a long-lived cookie.
 - Every finish posts one result per device per puzzle. Trust model: rate limit, uniqueness constraint, outlier clipping when aggregating. Server-side score recomputation is deferred until leaderboards exist.
 - End-game screen shows: today's percentile by score, rank distribution bar, hardest bracket of the day. No HUD stats icon until sign-in ships.
-- Later: optional magic-link sign-in. Signing in sets `players.auth_user_id`. Signing in on a device that has its own anonymous history merges both, re-pointing results and ignoring per-puzzle duplicates.
-- After sign-in the streak is derived on the server from completion dates, never stored as a counter. The local streak is a cache for anonymous players only.
+- Optional magic-link sign-in (any email). The session is our own signed cookie holding the player id, like the studio's. Signing in on a device with anonymous history re-points that device's results to the account, ignoring per-puzzle duplicates.
+- After sign-in the streak is derived on the server from live completion dates. The local streak store is seeded from the server on load and stays the cache for anonymous players.
+- Studio answer rows are keyed by clue text, not bracket position, so inserting a bracket never shifts later answers.
 
 ## Explicitly out of scope
 
