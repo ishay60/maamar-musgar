@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   buildPuzzle,
@@ -12,7 +12,7 @@ import type { BracketSpec, BuildPuzzleInput, Difficulty, Puzzle } from "@/lib/pu
 import { DIFFICULTY_EMOJI, DIFFICULTY_LABEL_HE } from "@/lib/puzzle";
 import { AnswersTable } from "./AnswersTable";
 import type { AnswerRow } from "./AnswersTable";
-import { realignRows } from "@/lib/clueRows";
+import { loadClueMemory, realignRows, rememberRows } from "@/lib/clueRows";
 import { clueSummary, collectBrackets } from "@/lib/puzzle";
 import type { LibraryClue } from "@/lib/clueLibrary";
 import type { PuzzleStats } from "@/lib/results";
@@ -55,9 +55,19 @@ export function PuzzleBuilder({
   }, [bracketString]);
 
   // Rows follow their clue text, so editing the string never shifts answers onto other brackets.
+  // While the string is unbalanced (mid-typing) rows are left alone, and answers typed in this
+  // browser are remembered per clue so a deleted or re-typed bracket gets its answer back.
+  const memory = useRef<Record<string, AnswerRow>>({});
   useEffect(() => {
-    const clues = (parsed?.bracketOrder ?? []).map(clueSummary);
-    setRows((prev) => (prev.map((r) => r.clue).join("\0") === clues.join("\0") ? prev : realignRows(prev, clues)));
+    memory.current = loadClueMemory();
+  }, []);
+  useEffect(() => {
+    memory.current = rememberRows(rows, memory.current);
+  }, [rows]);
+  useEffect(() => {
+    if (!parsed) return;
+    const clues = parsed.bracketOrder.map(clueSummary);
+    setRows((prev) => (prev.map((r) => r.clue).join("\0") === clues.join("\0") ? prev : realignRows(prev, clues, memory.current)));
   }, [parsed]);
 
   const [library, setLibrary] = useState<LibraryClue[]>([]);
