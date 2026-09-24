@@ -12,7 +12,10 @@ function load(): StreakData {
   try {
     const raw = localStorage.getItem(KEY) ?? localStorage.getItem(LEGACY_KEY);
     if (!raw) return emptyStreak;
-    return { ...emptyStreak, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return emptyStreak;
+    const completed = parsed.completed && typeof parsed.completed === "object" && !Array.isArray(parsed.completed) ? parsed.completed : {};
+    return { ...emptyStreak, ...parsed, completed };
   } catch {
     return emptyStreak;
   }

@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { GameContainer } from "@/components/GameContainer";
 import { isAdminEnabled, readSession } from "@/lib/adminAccess";
 import { PLAYER_COOKIE } from "@/lib/player";
-import { playerEmail, playerHistory } from "@/lib/results";
+import { loadProgress, playerEmail, playerHistory } from "@/lib/results";
 import { todayInIsrael } from "@/lib/puzzle/puzzles";
 import { loadPublishedPuzzles } from "@/lib/puzzleStore";
 
@@ -37,6 +37,7 @@ export default async function HomePage({
   if (!puzzle) {
     return <main className="p-8 text-center">אין עדיין חידה. חזרו מחר.</main>;
   }
+  const saved = account && playerId ? await loadProgress(playerId, puzzle.id).catch(() => null) : null;
   return (
     <Suspense>
       <GameContainer
@@ -46,6 +47,7 @@ export default async function HomePage({
         today={today}
         studioEnabled={isAdminEnabled()}
         account={account}
+        saved={saved}
       />
     </Suspense>
   );

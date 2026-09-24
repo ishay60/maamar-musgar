@@ -2,6 +2,8 @@ import { db } from "./db";
 import { NOT_CONFIGURED } from "./puzzleStore";
 import { RANK_LABEL_HE } from "./puzzle/scoring";
 import type { Rank } from "./puzzle/engine";
+import { parseProgress, pickProgress } from "./progress";
+import type { SavedProgress } from "./progress";
 import { deriveStreak } from "./streak";
 import type { StreakData } from "./streak";
 
@@ -147,4 +149,25 @@ export async function playsByPuzzle(puzzleIds: string[]): Promise<Record<string,
     out[r.puzzle_id].sum += r.score;
   }
   return Object.fromEntries(Object.entries(out).map(([id, v]) => [id, { plays: v.plays, avgScore: Math.round(v.sum / v.plays) }]));
+}
+
+/** A signed-in player's saved game for one puzzle, or null. Never throws: a missing table must not break the game. */
+export async function loadProgress(playerId: string, puzzleId: string): Promise<SavedProgress | null> {
+  const client = db();
+  if (!client) return null;
+  const { data, error } = await client.from("progress").select("state").eq("player_id", playerId).eq("puzzle_id", puzzleId).maybeSingle();
+  if (error) return null;
+  return parseProgress(data?.state);
+}
+
+/** Keep whichever of the stored and incoming saves is further along. */
+export async function saveProgress(playerId: string, puzzleId: string, state: SavedProgress): Promise<void> {
+  const client = db();
+  if (!client) throw new Error(NOT_CONFIGURED);
+  const best = pickProgress(await loadProgress(playerId, puzzleId), state);
+  if (best !== state) return;
+  const { error } = await client
+    .from("progress")
+    .upsert({ player_id: playerId, puzzle_id: puzzleId, state, updated_at: new Date().toISOString() }, { onConflict: "player_id,puzzle_id" });
+  if (error) throw new Error(`Progress save failed: ${error.message}`);
 }

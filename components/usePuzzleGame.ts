@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useReducer } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import type { Puzzle, PuzzleNode } from "@/lib/puzzle";
 import {
   applyGuessToSolvableLeaf,
@@ -12,12 +12,16 @@ import {
   isPuzzleComplete,
 } from "@/lib/puzzle";
 import type { GameState } from "@/lib/puzzle";
+import { isPristine, parseProgress, pickProgress, progressKey, restoreGame, serializeGame } from "@/lib/progress";
+import type { SavedProgress } from "@/lib/progress";
 
 interface InternalState {
   game: GameState;
   input: string;
   shakeNodeId: string | null;
   popNodeId: string | null;
+  /** The puzzle was already finished when loaded from a save: no confetti, no fanfare. */
+  restoredComplete: boolean;
 }
 
 type Action =
@@ -26,6 +30,7 @@ type Action =
   | { type: "submit"; puzzle: Puzzle }
   | { type: "peekNode"; puzzle: Puzzle; nodeId: string }
   | { type: "revealNode"; puzzle: Puzzle; nodeId: string }
+  | { type: "restore"; game: GameState; complete: boolean }
   | { type: "clearPop" }
   | { type: "clearShake" };
 
@@ -106,6 +111,8 @@ function reducer(state: InternalState, action: Action): InternalState {
         popNodeId: res.solvedNodeId,
       };
     }
+    case "restore":
+      return { ...state, game: action.game, input: "", popNodeId: null, shakeNodeId: null, restoredComplete: action.complete };
     case "clearPop":
       return { ...state, popNodeId: null };
     case "clearShake":
@@ -113,17 +120,72 @@ function reducer(state: InternalState, action: Action): InternalState {
   }
 }
 
-export function usePuzzleGame(puzzle: Puzzle) {
+function readLocal(puzzleId: string): SavedProgress | null {
+  try {
+    return parseProgress(localStorage.getItem(progressKey(puzzleId)));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * `saved` is the signed-in player's server copy for this puzzle. It seeds the
+ * first render (same on server and client); the localStorage copy is checked
+ * after mount and wins if it is further along.
+ */
+export function usePuzzleGame(puzzle: Puzzle, saved: SavedProgress | null = null, sync = false) {
   const [state, dispatch] = useReducer(
     reducer,
     undefined,
-    (): InternalState => ({
-      game: createGameState(puzzle),
-      input: "",
-      shakeNodeId: null,
-      popNodeId: null,
-    }),
+    (): InternalState => {
+      const game = restoreGame(puzzle, saved) ?? createGameState(puzzle);
+      return {
+        game,
+        input: "",
+        shakeNodeId: null,
+        popNodeId: null,
+        restoredComplete: isPuzzleComplete(puzzle.tree, game.solved),
+      };
+    },
   );
+
+  // Resume from this device's copy when it is ahead of the server's.
+  useEffect(() => {
+    const local = readLocal(puzzle.id);
+    const best = pickProgress(saved, local);
+    if (best && best === local && best !== saved) {
+      const game = restoreGame(puzzle, best);
+      if (game) dispatch({ type: "restore", game, complete: isPuzzleComplete(puzzle.tree, game.solved) });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Save every change: localStorage now, the server (signed in) after a short pause.
+  // The first run is the state we just loaded, so there is nothing new to save.
+  const loaded = useRef(false);
+  useEffect(() => {
+    if (!loaded.current) {
+      loaded.current = true;
+      return;
+    }
+    if (isPristine(state.game)) return;
+    const snapshot = serializeGame(state.game);
+    try {
+      localStorage.setItem(progressKey(puzzle.id), JSON.stringify(snapshot));
+    } catch {
+      /* quota or disabled: progress just won't survive a reload */
+    }
+    if (!sync) return;
+    const t = setTimeout(() => {
+      fetch("/api/progress", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ puzzleId: puzzle.id, state: snapshot }),
+        keepalive: true,
+      }).catch(() => {});
+    }, 800);
+    return () => clearTimeout(t);
+  }, [state.game, puzzle.id, sync]);
 
   const activeNode = state.game.activeNodeId
     ? findNode(puzzle.tree, state.game.activeNodeId)
@@ -214,6 +276,7 @@ export function usePuzzleGame(puzzle: Puzzle) {
     popNodeId: state.popNodeId,
     shakeNodeId: state.shakeNodeId,
     complete,
+    restoredComplete: state.restoredComplete,
     setActive,
     setInputValue,
     submit,

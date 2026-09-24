@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { computeScore, findNode, RANK_LABEL_HE } from "@/lib/puzzle";
 import type { Puzzle } from "@/lib/puzzle";
 import { getDeviceId } from "@/lib/player";
+import type { SavedProgress } from "@/lib/progress";
 import type { StreakData } from "@/lib/streak";
 import { AnswerBank } from "./AnswerBank";
 import { CalendarPopover } from "./CalendarPopover";
@@ -27,13 +28,15 @@ export interface GameContainerProps {
   studioEnabled: boolean;
   /** Signed-in player: email plus server-side history. Null when anonymous. */
   account: { email: string; history: StreakData } | null;
+  /** Signed-in player's saved game for this puzzle, if any. */
+  saved?: SavedProgress | null;
 }
 
 /** Mount with `key={puzzle.id}` so switching dates fully resets the game state. */
-export function GameContainer({ puzzle, dates, today, studioEnabled, account }: GameContainerProps) {
+export function GameContainer({ puzzle, dates, today, studioEnabled, account, saved = null }: GameContainerProps) {
   const router = useRouter();
   const loginFlag = useSearchParams().get("login");
-  const game = usePuzzleGame(puzzle);
+  const game = usePuzzleGame(puzzle, saved, !!account);
   const streak = useStreak(today, account?.history);
   const [helpOpen, setHelpOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -66,6 +69,7 @@ export function GameContainer({ puzzle, dates, today, studioEnabled, account }: 
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => d?.ok && setPercentile({ plays: d.plays, percentile: d.percentile }))
       .catch(() => {});
+    if (game.restoredComplete) return;
     setAnnouncement(
       `נפתר! דרגה ${RANK_LABEL_HE[score.rank]}, ניקוד ${score.finalScore}. המשפט המלא: ${puzzle.finalSentence}.`,
     );
@@ -159,7 +163,7 @@ export function GameContainer({ puzzle, dates, today, studioEnabled, account }: 
         />
       ) : null}
 
-      <Confetti active={game.complete} />
+      <Confetti active={game.complete && !game.restoredComplete} />
 
       <footer
         className="hidden sm:flex mt-6 text-center puzzle-mono text-[11px] items-center justify-center gap-3"
