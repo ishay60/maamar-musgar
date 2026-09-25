@@ -53,7 +53,10 @@ export function HelpDialog({ open, onClose }: { open: boolean; onClose: () => vo
             מעידות עוד שומרות על דירוג ראש העיר. פתרון עם הרבה עזרה — תייר.
           </li>
         </ol>
-        <div className="mt-5 text-right">
+        <div className="mt-5 flex items-center justify-between gap-3">
+          <a href="/?tutorial=1" className="puzzle-mono text-[12px] underline underline-offset-4" style={{ color: "#6b6356" }}>
+            [לחידת ההיכרות]
+          </a>
           <button
             type="button"
             onClick={onClose}

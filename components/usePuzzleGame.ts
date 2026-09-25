@@ -131,9 +131,10 @@ function readLocal(puzzleId: string): SavedProgress | null {
 /**
  * `saved` is the signed-in player's server copy for this puzzle. It seeds the
  * first render (same on server and client); the localStorage copy is checked
- * after mount and wins if it is further along.
+ * after mount and wins if it is further along. `persist: false` (tutorial,
+ * editor preview) neither reads nor writes any saved progress.
  */
-export function usePuzzleGame(puzzle: Puzzle, saved: SavedProgress | null = null, sync = false) {
+export function usePuzzleGame(puzzle: Puzzle, saved: SavedProgress | null = null, sync = false, persist = true) {
   const [state, dispatch] = useReducer(
     reducer,
     undefined,
@@ -151,6 +152,7 @@ export function usePuzzleGame(puzzle: Puzzle, saved: SavedProgress | null = null
 
   // Resume from this device's copy when it is ahead of the server's.
   useEffect(() => {
+    if (!persist) return;
     const local = readLocal(puzzle.id);
     const best = pickProgress(saved, local);
     if (best && best === local && best !== saved) {
@@ -168,7 +170,7 @@ export function usePuzzleGame(puzzle: Puzzle, saved: SavedProgress | null = null
       loaded.current = true;
       return;
     }
-    if (isPristine(state.game)) return;
+    if (!persist || isPristine(state.game)) return;
     const snapshot = serializeGame(state.game);
     try {
       localStorage.setItem(progressKey(puzzle.id), JSON.stringify(snapshot));
@@ -185,7 +187,7 @@ export function usePuzzleGame(puzzle: Puzzle, saved: SavedProgress | null = null
       }).catch(() => {});
     }, 800);
     return () => clearTimeout(t);
-  }, [state.game, puzzle.id, sync]);
+  }, [state.game, puzzle.id, sync, persist]);
 
   const activeNode = state.game.activeNodeId
     ? findNode(puzzle.tree, state.game.activeNodeId)

@@ -14,6 +14,7 @@ import { ControlsBar } from "./ControlsBar";
 import { EndGameScreen } from "./EndGameScreen";
 import { HelpDialog } from "./HelpDialog";
 import { HUD } from "./HUD";
+import { PreviewBanner, TutorialCoach, TutorialFinish, WelcomeDialog, isNewPlayer } from "./Onboarding";
 import { PuzzleBoard } from "./PuzzleBoard";
 import { StatsDialog } from "./StatsDialog";
 import { usePuzzleGame } from "./usePuzzleGame";
@@ -30,24 +31,43 @@ export interface GameContainerProps {
   account: { email: string; history: StreakData } | null;
   /** Signed-in player's saved game for this puzzle, if any. */
   saved?: SavedProgress | null;
+  /**
+   * live: a published puzzle. preview: an editor playing a scheduled puzzle
+   * before its date. tutorial: the onboarding puzzle. Only live records
+   * results, the streak and progress.
+   */
+  mode?: "live" | "preview" | "tutorial";
 }
 
 /** Mount with `key={puzzle.id}` so switching dates fully resets the game state. */
-export function GameContainer({ puzzle, dates, today, studioEnabled, account, saved = null }: GameContainerProps) {
+export function GameContainer({ puzzle, dates, today, studioEnabled, account, saved = null, mode = "live" }: GameContainerProps) {
   const router = useRouter();
   const loginFlag = useSearchParams().get("login");
-  const game = usePuzzleGame(puzzle, saved, !!account);
+  const live = mode === "live";
+  const tutorial = mode === "tutorial";
+  const game = usePuzzleGame(puzzle, saved, live && !!account, live);
   const streak = useStreak(today, account?.history);
   const [helpOpen, setHelpOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(!!loginFlag);
   const [percentile, setPercentile] = useState<{ plays: number; percentile: number } | null>(null);
   const [announcement, setAnnouncement] = useState("");
+  const [welcomeOpen, setWelcomeOpen] = useState(false);
+  useEffect(() => {
+    if (live && !account && !loginFlag && isNewPlayer()) setWelcomeOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const setDate = (d: string) => router.replace(`/?date=${d}`);
 
   useEffect(() => {
     if (!game.complete) return;
     const score = computeScore(puzzle, game.game);
+    if (!game.restoredComplete) {
+      setAnnouncement(
+        `נפתר! דרגה ${RANK_LABEL_HE[score.rank]}, ניקוד ${score.finalScore}. המשפט המלא: ${puzzle.finalSentence}.`,
+      );
+    }
+    if (!live) return;
     streak.recordCompletion(puzzle.date, score.finalScore, RANK_LABEL_HE[score.rank]);
     const g = game.game;
     fetch("/api/results", {
@@ -69,10 +89,6 @@ export function GameContainer({ puzzle, dates, today, studioEnabled, account, sa
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => d?.ok && setPercentile({ plays: d.plays, percentile: d.percentile }))
       .catch(() => {});
-    if (game.restoredComplete) return;
-    setAnnouncement(
-      `נפתר! דרגה ${RANK_LABEL_HE[score.rank]}, ניקוד ${score.finalScore}. המשפט המלא: ${puzzle.finalSentence}.`,
-    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.complete]);
 
@@ -87,9 +103,9 @@ export function GameContainer({ puzzle, dates, today, studioEnabled, account, sa
     setAnnouncement("תשובה שגויה");
   }, [game.shakeNodeId]);
 
-  const idx = dates.indexOf(puzzle.date);
-  const prev = dates[idx - 1] ?? null;
-  const next = dates[idx + 1] ?? null;
+  const idx = tutorial ? -1 : dates.indexOf(puzzle.date);
+  const prev = idx > 0 ? dates[idx - 1] : null;
+  const next = idx >= 0 ? dates[idx + 1] ?? null : null;
 
   // Mobile drawer behavior: collapse the HUD when the player scrolls into the
   // puzzle, restore it when scrolled back to the top (like a browser URL bar).
@@ -130,6 +146,7 @@ export function GameContainer({ puzzle, dates, today, studioEnabled, account, sa
               onShowHelp={() => setHelpOpen(true)}
               onShowCalendar={() => setCalendarOpen(true)}
               onShowStats={() => setStatsOpen(true)}
+              title={tutorial ? "חידת היכרות" : undefined}
             />
           </div>
         </div>
@@ -140,6 +157,8 @@ export function GameContainer({ puzzle, dates, today, studioEnabled, account, sa
               onScroll={onScrollPuzzle}
               className="flex-1 sm:flex-none overflow-y-auto sm:overflow-visible px-3 sm:px-6 pt-2 sm:pt-6 pb-2"
             >
+              {tutorial ? <TutorialCoach game={game} /> : null}
+              {mode === "preview" ? <PreviewBanner /> : null}
               <PuzzleBoard tree={puzzle.tree} game={game} />
               <AnswerBank tree={puzzle.tree} game={game} />
             </div>
@@ -153,7 +172,8 @@ export function GameContainer({ puzzle, dates, today, studioEnabled, account, sa
         )}
       </article>
 
-      {game.complete ? (
+      {game.complete && tutorial ? <TutorialFinish sentence={puzzle.finalSentence} /> : null}
+      {game.complete && !tutorial ? (
         <EndGameScreen
           puzzle={puzzle}
           game={game}
@@ -179,11 +199,12 @@ export function GameContainer({ puzzle, dates, today, studioEnabled, account, sa
       </footer>
 
       <HelpDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
+      {welcomeOpen ? <WelcomeDialog onClose={() => setWelcomeOpen(false)} /> : null}
       {calendarOpen ? (
         <CalendarPopover
           dates={dates}
           completed={streak.data.completed}
-          current={puzzle.date}
+          current={tutorial ? today : puzzle.date}
           today={today}
           streak={streak.data.current}
           onPick={setDate}
@@ -195,7 +216,7 @@ export function GameContainer({ puzzle, dates, today, studioEnabled, account, sa
           data={streak.data}
           email={account?.email ?? null}
           loginFlag={loginFlag}
-          back={`/?date=${puzzle.date}`}
+          back={tutorial ? "/?tutorial=1" : `/?date=${puzzle.date}`}
           onClose={() => setStatsOpen(false)}
         />
       ) : null}

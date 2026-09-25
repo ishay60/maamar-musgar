@@ -16,6 +16,7 @@ export function HUD({
   onShowHelp,
   onShowCalendar,
   onShowStats,
+  title,
 }: {
   puzzle: Puzzle;
   game: UsePuzzleGame;
@@ -27,6 +28,8 @@ export function HUD({
   onShowHelp: () => void;
   onShowCalendar: () => void;
   onShowStats: () => void;
+  /** Replaces the date line (the onboarding puzzle has no real date). */
+  title?: string;
 }) {
   const liveScore = computeLiveScore(puzzle, game.game);
   const solvedCount = game.game.solved.size;
@@ -57,9 +60,15 @@ export function HUD({
           <span aria-hidden="true">{difficultyEmoji}</span>
         </div>
         <div className="puzzle-mono text-[12px] text-[#6b6356] mt-0.5 flex items-center justify-center gap-2">
-          <NavArrow direction="prev" disabled={!hasPrev} onClick={onPrev} />
-          <span>{formatHebrewDate(puzzle.date)}</span>
-          <NavArrow direction="next" disabled={!hasNext} onClick={onNext} />
+          {title ? (
+            <span>{title}</span>
+          ) : (
+            <>
+              <NavArrow direction="prev" disabled={!hasPrev} onClick={onPrev} />
+              <span>{formatHebrewDate(puzzle.date)}</span>
+              <NavArrow direction="next" disabled={!hasNext} onClick={onNext} />
+            </>
+          )}
         </div>
         <div className="puzzle-mono text-[11px] text-[#6b6356] mt-0.5">
           🔥 רצף: {streak} · ניקוד: {liveScore} · {solvedCount}/{puzzle.totalBrackets}
