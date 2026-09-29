@@ -171,3 +171,52 @@ export async function saveProgress(playerId: string, puzzleId: string, state: Sa
     .upsert({ player_id: playerId, puzzle_id: puzzleId, state, updated_at: new Date().toISOString() }, { onConflict: "player_id,puzzle_id" });
   if (error) throw new Error(`Progress save failed: ${error.message}`);
 }
+
+export interface ImportedResult {
+  date: string;
+  score: number;
+  /** Rank key or its Hebrew label (the browser stores labels). */
+  rank: string;
+}
+
+const RANK_BY_LABEL: Record<string, Rank> = Object.fromEntries(
+  (Object.entries(RANK_LABEL_HE) as [Rank, string][]).flatMap(([key, label]) => [[key, key], [label, key]]),
+);
+
+/**
+ * Attach completions that exist only in a browser's local history to a
+ * signed-in player. Existing results always win (first finish wins), so this
+ * is safe to repeat. Imported rows count as live: the browser only kept dates
+ * and scores, and its streak was built from them. Returns rows added.
+ */
+export async function importHistory(playerId: string, entries: ImportedResult[], today: string): Promise<number> {
+  const client = db();
+  if (!client) throw new Error(NOT_CONFIGURED);
+  const byDate = new Map(
+    entries
+      .filter((e) => /^\d{4}-\d{2}-\d{2}$/.test(e.date) && e.date <= today && RANK_BY_LABEL[e.rank])
+      .map((e) => [e.date, e]),
+  );
+  if (byDate.size === 0) return 0;
+  const { data: puzzles, error: readError } = await client
+    .from("puzzles")
+    .select("id,date,max_score")
+    .eq("status", "scheduled")
+    .in("date", [...byDate.keys()]);
+  if (readError) throw new Error(`History import failed: ${readError.message}`);
+  const rows = ((puzzles ?? []) as { id: string; date: string; max_score: number | null }[]).map((p) => {
+    const e = byDate.get(p.date)!;
+    return {
+      puzzle_id: p.id,
+      player_id: playerId,
+      score: Math.min(p.max_score ?? 100, Math.max(0, Math.round(Number(e.score) || 0))),
+      rank: RANK_BY_LABEL[e.rank],
+      live: true,
+    };
+  });
+  if (rows.length === 0) return 0;
+  await client.from("players").upsert({ id: playerId }, { onConflict: "id", ignoreDuplicates: true });
+  const { error } = await client.from("results").upsert(rows, { onConflict: "puzzle_id,player_id", ignoreDuplicates: true });
+  if (error) throw new Error(`History import failed: ${error.message}`);
+  return rows.length;
+}

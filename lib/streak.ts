@@ -59,3 +59,26 @@ export function deriveStreak(liveDates: string[], today: string): Pick<StreakDat
   const current = last && daysBetween(last, today) <= 1 ? run : 0;
   return { current, longest, lastPuzzleDate: last };
 }
+
+/**
+ * Combine this browser's streak with a signed-in player's server history.
+ * Nothing is ever lowered: completions are unioned, the best streak is the
+ * max, and the current streak comes from whichever side played most recently.
+ *
+ * Before this existed, signing in replaced the local streak with the server's
+ * (empty, since results were not being stored yet) and saved it, leaving
+ * `longest: 0` next to real completions. Applying a completion always sets
+ * longest >= 1, so that combination can only be that damage: rebuild the
+ * streak from the completed dates.
+ */
+export function mergeStreak(local: StreakData, seed: StreakData, today: string): StreakData {
+  const completed = { ...local.completed, ...seed.completed };
+  const sides: Pick<StreakData, "current" | "longest" | "lastPuzzleDate">[] = [local, seed];
+  if (local.longest === 0 && Object.keys(local.completed).length > 0) {
+    sides.push(deriveStreak(Object.keys(local.completed), today));
+  }
+  const last = sides.reduce<string | null>((a, s) => (s.lastPuzzleDate && (!a || s.lastPuzzleDate > a) ? s.lastPuzzleDate : a), null);
+  const current = Math.max(0, ...sides.filter((s) => s.lastPuzzleDate === last).map((s) => s.current));
+  const longest = Math.max(current, ...sides.map((s) => s.longest));
+  return { current, longest, lastPuzzleDate: last, completed };
+}
