@@ -77,9 +77,16 @@ describe("mergeStreak", () => {
   });
 
   it("takes the current streak from whichever side played last", () => {
-    const local = { current: 2, longest: 9, lastPuzzleDate: "2026-09-20", completed: {} };
+    // Local run 09-17..09-18, then a gap: the server's run 09-21..09-24 is the current one.
+    const local = { current: 2, longest: 9, lastPuzzleDate: "2026-09-18", completed: {} };
     const server = { current: 4, longest: 4, lastPuzzleDate: "2026-09-24", completed: done("2026-09-24") };
     const merged = mergeStreak(local, server, "2026-09-24");
     expect(merged).toMatchObject({ current: 4, longest: 9, lastPuzzleDate: "2026-09-24" });
+  });
+
+  it("joins runs that continue each other across devices", () => {
+    const local = { current: 2, longest: 2, lastPuzzleDate: "2026-09-20", completed: {} };
+    const server = { current: 4, longest: 4, lastPuzzleDate: "2026-09-24", completed: {} };
+    expect(mergeStreak(local, server, "2026-09-24")).toMatchObject({ current: 6, longest: 6 });
   });
 });

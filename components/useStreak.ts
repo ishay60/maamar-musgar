@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { applyCompletion, emptyStreak, mergeStreak } from "@/lib/streak";
+import { applyCompletion, emptyStreak, hydrateStreak } from "@/lib/streak";
 import type { StreakData } from "@/lib/streak";
 
 const KEY = "maamar-musgar:streak-v1";
@@ -38,14 +38,10 @@ export function useStreak(today: string, seed?: StreakData) {
   const [data, setData] = useState<StreakData>(emptyStreak);
 
   useEffect(() => {
-    const local = load();
-    const next = seed ? mergeStreak(local, seed, today) : local;
+    const { data: next, missing } = hydrateStreak(load(), seed, today);
     setData(next);
     if (!seed) return;
     save(next);
-    const missing = Object.entries(local.completed)
-      .filter(([date]) => !seed.completed[date])
-      .map(([date, r]) => ({ date, score: r.score, rank: r.rank }));
     if (missing.length) {
       fetch("/api/results/import", {
         method: "POST",

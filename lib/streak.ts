@@ -77,8 +77,38 @@ export function mergeStreak(local: StreakData, seed: StreakData, today: string):
   if (local.longest === 0 && Object.keys(local.completed).length > 0) {
     sides.push(deriveStreak(Object.keys(local.completed), today));
   }
+  // Each side's current run is a set of consecutive days actually played live;
+  // joined, they give the streak across devices (6 here + today there = 7).
+  sides.push(deriveStreak(sides.flatMap(runDates), today));
   const last = sides.reduce<string | null>((a, s) => (s.lastPuzzleDate && (!a || s.lastPuzzleDate > a) ? s.lastPuzzleDate : a), null);
   const current = Math.max(0, ...sides.filter((s) => s.lastPuzzleDate === last).map((s) => s.current));
   const longest = Math.max(current, ...sides.map((s) => s.longest));
   return { current, longest, lastPuzzleDate: last, completed };
+}
+
+/** The dates of a side's current run: `current` consecutive days ending on its last live day. */
+function runDates(s: Pick<StreakData, "current" | "lastPuzzleDate">): string[] {
+  if (!s.lastPuzzleDate || s.current <= 0) return [];
+  return Array.from({ length: s.current }, (_, i) => {
+    const d = new Date(s.lastPuzzleDate + "T00:00:00");
+    d.setDate(d.getDate() - i);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  });
+}
+
+/**
+ * What the game does with history on page load: the streak to show (and save
+ * back to this browser), and the local completions the account is missing,
+ * which get uploaded to it. Anonymous players (no seed) keep the local copy.
+ */
+export function hydrateStreak(
+  local: StreakData,
+  seed: StreakData | undefined,
+  today: string,
+): { data: StreakData; missing: { date: string; score: number; rank: string }[] } {
+  if (!seed) return { data: local, missing: [] };
+  const missing = Object.entries(local.completed)
+    .filter(([date]) => !seed.completed[date])
+    .map(([date, r]) => ({ date, score: r.score, rank: r.rank }));
+  return { data: mergeStreak(local, seed, today), missing };
 }
