@@ -2,7 +2,7 @@ export interface StreakData {
   current: number;
   longest: number;
   lastPuzzleDate: string | null; // ISO yyyy-mm-dd of the last daily puzzle that counted
-  completed: Record<string, { score: number; rank: string }>; // per-puzzle-date record
+  completed: Record<string, { score: number; rank: string; live?: boolean }>; // per-puzzle-date record
 }
 
 export const emptyStreak: StreakData = {
@@ -30,7 +30,7 @@ export function applyCompletion(
   rank: string,
 ): StreakData {
   if (prev.completed[puzzleDate]) return prev;
-  const completed = { ...prev.completed, [puzzleDate]: { score, rank } };
+  const completed = { ...prev.completed, [puzzleDate]: { score, rank, live: puzzleDate === today } };
   if (puzzleDate !== today) return { ...prev, completed };
 
   const diff = prev.lastPuzzleDate ? daysBetween(prev.lastPuzzleDate, today) : NaN;
@@ -67,15 +67,16 @@ export function deriveStreak(liveDates: string[], today: string): Pick<StreakDat
  *
  * Before this existed, signing in replaced the local streak with the server's
  * (empty, since results were not being stored yet) and saved it, leaving
- * `longest: 0` next to real completions. Applying a completion always sets
- * longest >= 1, so that combination can only be that damage: rebuild the
- * streak from the completed dates.
+ * `longest: 0` next to explicitly live completions can indicate that damage.
+ * Archive completions also leave longest at zero, so only marked live dates
+ * are used to rebuild it.
  */
 export function mergeStreak(local: StreakData, seed: StreakData, today: string): StreakData {
   const completed = { ...local.completed, ...seed.completed };
   const sides: Pick<StreakData, "current" | "longest" | "lastPuzzleDate">[] = [local, seed];
-  if (local.longest === 0 && Object.keys(local.completed).length > 0) {
-    sides.push(deriveStreak(Object.keys(local.completed), today));
+  if (local.longest === 0) {
+    const liveDates = Object.entries(local.completed).filter(([, result]) => result.live === true).map(([date]) => date);
+    if (liveDates.length > 0) sides.push(deriveStreak(liveDates, today));
   }
   // Each side's current run is a set of consecutive days actually played live;
   // joined, they give the streak across devices (6 here + today there = 7).

@@ -74,7 +74,8 @@ describe("signing in keeps the player's history", () => {
   });
 
   it("a browser whose streak an earlier build zeroed gets it back", async () => {
-    const wiped = browser({ current: 0, longest: 0, lastPuzzleDate: null });
+    const completed = Object.fromEntries(PLAYED.map((date, i) => [date, { score: 60 + i * 5, rank: "ראש עיר", live: true }]));
+    const wiped = browser({ current: 0, longest: 0, lastPuzzleDate: null, completed });
     const { player, shown } = await signInAndLoad("lian@example.com", wiped);
 
     expect(shown.current).toBe(6);

@@ -15,6 +15,7 @@ describe("applyCompletion", () => {
     expect(s.current).toBe(1);
     expect(s.longest).toBe(1);
     expect(s.lastPuzzleDate).toBe("2026-05-01");
+    expect(s.completed["2026-05-01"].live).toBe(true);
   });
 
   it("extends the streak on consecutive days", () => {
@@ -33,7 +34,7 @@ describe("applyCompletion", () => {
     const s = applyCompletion(done("2026-05-02", 3), "2026-04-10", "2026-05-02", 90, "r");
     expect(s.current).toBe(3);
     expect(s.lastPuzzleDate).toBe("2026-05-02");
-    expect(s.completed["2026-04-10"]).toEqual({ score: 90, rank: "r" });
+    expect(s.completed["2026-04-10"]).toEqual({ score: 90, rank: "r", live: false });
   });
 
   it("ignores replays of an already completed puzzle", () => {
@@ -69,11 +70,23 @@ describe("mergeStreak", () => {
 
   it("rebuilds a streak that an earlier sign-in overwrote with zeros", () => {
     const dates = ["2026-09-15", "2026-09-18", "2026-09-19", "2026-09-20", "2026-09-21", "2026-09-22", "2026-09-23"];
-    const wiped = { current: 0, longest: 0, lastPuzzleDate: null, completed: done(...dates) };
+    const completed = Object.fromEntries(dates.map((date) => [date, { score: 90, rank: "x", live: true }]));
+    const wiped = { current: 0, longest: 0, lastPuzzleDate: null, completed };
     const merged = mergeStreak(wiped, emptyStreak, "2026-09-24");
     expect(merged.current).toBe(6);
     expect(merged.longest).toBe(6);
     expect(merged.lastPuzzleDate).toBe("2026-09-23");
+  });
+
+  it("does not rebuild a zeroed streak from unclassified completed dates", () => {
+    const dates = ["2026-09-15", "2026-09-16", "2026-09-17"];
+    const completed = Object.fromEntries(dates.map((date) => [date, { score: 90, rank: "x" }]));
+    const archiveOnly = { current: 0, longest: 0, lastPuzzleDate: null, completed };
+    expect(mergeStreak(archiveOnly, emptyStreak, "2026-09-18")).toMatchObject({
+      current: 0,
+      longest: 0,
+      lastPuzzleDate: null,
+    });
   });
 
   it("takes the current streak from whichever side played last", () => {
