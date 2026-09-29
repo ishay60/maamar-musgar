@@ -55,11 +55,12 @@ export const NOT_CONFIGURED = "Database not configured (set SUPABASE_URL and SUP
 const COLUMNS =
   "id,date,status,bracket_string,specs,final_sentence,historical_context,max_score,tags,difficulty";
 
-async function loadRows(publishedBefore?: string): Promise<PuzzleRow[]> {
+async function loadRows(publishedBefore?: string, scheduledOnly = !!publishedBefore): Promise<PuzzleRow[]> {
   const client = db();
   if (!client) return [];
   let q = client.from("puzzles").select(COLUMNS).order("date");
-  if (publishedBefore) q = q.eq("status", "scheduled").lte("date", publishedBefore);
+  if (scheduledOnly) q = q.eq("status", "scheduled");
+  if (publishedBefore) q = q.lte("date", publishedBefore);
   const { data, error } = await q;
   if (error) throw new Error(`Puzzle read failed: ${error.message}`);
   return (data ?? []) as unknown as PuzzleRow[];
@@ -73,6 +74,11 @@ export async function loadLivePuzzles(): Promise<Puzzle[]> {
 /** Scheduled puzzles dated today or earlier. For players. Never ships future puzzles. */
 export async function loadPublishedPuzzles(today: string): Promise<Puzzle[]> {
   return buildAll((await loadRows(today)).map(rowToInput));
+}
+
+/** Every scheduled puzzle, future dates included. For editors playing ahead in the game. */
+export async function loadScheduledPuzzles(): Promise<Puzzle[]> {
+  return buildAll((await loadRows(undefined, true)).map(rowToInput));
 }
 
 /** Insert or update one puzzle. Throws with a readable message on date conflicts. */

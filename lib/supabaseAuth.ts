@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 import type { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -18,5 +19,17 @@ export function authClient(req: NextRequest, res: NextResponse) {
         }
       },
     },
+  });
+}
+
+/**
+ * Player magic links use the implicit flow: the link carries the session in its
+ * #fragment instead of a PKCE code. A PKCE code can only be redeemed in the
+ * browser that asked for the link, which fails whenever the email opens in
+ * another browser (Chrome on iOS → Mail → Safari) or on another domain.
+ */
+export function magicLinkClient() {
+  return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+    auth: { flowType: "implicit", persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });
 }

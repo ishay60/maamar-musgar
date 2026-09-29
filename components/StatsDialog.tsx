@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { getDeviceId } from "@/lib/player";
 import { RANK_LABEL_HE } from "@/lib/puzzle";
 import type { StreakData } from "@/lib/streak";
 
@@ -17,6 +19,8 @@ export function StatsDialog({
   back: string;
   onClose: () => void;
 }) {
+  const [device, setDevice] = useState("");
+  useEffect(() => setDevice(getDeviceId()), []);
   const results = Object.values(data.completed);
   const played = results.length;
   const avg = played ? Math.round(results.reduce((s, r) => s + r.score, 0) / played) : 0;
@@ -41,7 +45,8 @@ export function StatsDialog({
         ) : null}
         <div className="mt-4 pt-4" style={{ borderTop: "1px solid #e7e0d0" }}>
           {email ? (
-            <form method="post" action="/api/auth/logout" className="flex items-center justify-between gap-2 puzzle-mono text-[12px]">
+            <form method="post" action="/api/auth/logout" className="flex flex-wrap items-center justify-between gap-2 puzzle-mono text-[12px]">
+              {loginFlag === "ok" ? <p className="w-full text-emerald-700">מחוברים. הרצף וההתקדמות נשמרים בחשבון.</p> : null}
               <span dir="ltr" className="truncate">{email}</span>
               <button type="submit" className="underline underline-offset-4 shrink-0">יציאה</button>
             </form>
@@ -53,6 +58,7 @@ export function StatsDialog({
               {loginFlag === "sent" ? <p className="puzzle-mono text-[12px] text-emerald-700">שלחנו קישור כניסה למייל.</p> : null}
               {loginFlag === "error" ? <p className="puzzle-mono text-[12px] text-red-700">הכניסה נכשלה. נסו שוב.</p> : null}
               <input type="hidden" name="back" value={back} />
+              <input type="hidden" name="device" value={device} />
               <input type="email" name="email" required dir="ltr" placeholder="email" className="rounded-md px-3 py-2 text-[14px]" style={{ border: "1px solid #e7e0d0" }} />
               <button type="submit" className="rounded-md px-3 py-2 puzzle-mono text-[12px]" style={{ backgroundColor: "#171412", color: "#fbfaf4" }}>[שלחו לי קישור כניסה]</button>
             </form>

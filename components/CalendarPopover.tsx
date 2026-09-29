@@ -29,7 +29,9 @@ export function CalendarPopover({
   const first = dates[0] ?? today;
   const title = new Date(focus.year, focus.month - 1, 1).toLocaleDateString("he-IL", { month: "long", year: "numeric" });
   const canPrev = monthKey(focus) > first.slice(0, 7);
-  const canNext = monthKey(focus) < today.slice(0, 7);
+  // Editors get future dates in `dates`; everyone else stops at this month.
+  const last = dates[dates.length - 1] ?? today;
+  const canNext = monthKey(focus) < (last > today ? last : today).slice(0, 7);
   return (
     <div className="fixed inset-0 z-50" onClick={onClose} role="dialog" aria-modal="true" aria-label="לוח חידות">
       <div
@@ -51,11 +53,14 @@ export function CalendarPopover({
             if (!d.inMonth) return <div key={d.iso} />;
             const done = d.iso in completed;
             const open = available.has(d.iso);
+            const future = open && d.iso > today;
             const style = done
               ? { backgroundColor: "#fde7d3", border: "1.5px solid #f0a06a" }
-              : open
-                ? { border: "1.5px dashed #f0a06a" }
-                : { color: "#c4bcae" };
+              : future
+                ? { border: "1.5px dashed #a78bfa", color: "#6d28d9" }
+                : open
+                  ? { border: "1.5px dashed #f0a06a" }
+                  : { color: "#c4bcae" };
             return (
               <button
                 key={d.iso}
@@ -64,7 +69,7 @@ export function CalendarPopover({
                 onClick={() => { onPick(d.iso); onClose(); }}
                 className="relative aspect-square rounded-full text-[12px] flex items-center justify-center disabled:cursor-default"
                 style={style}
-                aria-label={`${d.iso}${done ? " · נפתר" : open ? " · זמין" : ""}`}
+                aria-label={`${d.iso}${done ? " · נפתר" : future ? " · תצוגה מוקדמת" : open ? " · זמין" : ""}`}
                 aria-current={d.iso === current ? "date" : undefined}
               >
                 {d.day}

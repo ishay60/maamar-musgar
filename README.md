@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <a href="https://maamar-musgar.vercel.app">🎮 לשחק בחידת היום</a>
+  <a href="https://maamar-musgar.com">🎮 לשחק בחידת היום</a>
   &nbsp;·&nbsp;
   <a href="#הרצה-מקומית">🛠 הרצה מקומית</a>
   &nbsp;·&nbsp;
@@ -113,6 +113,7 @@ node --env-file=.env scripts/import-puzzles.ts data/puzzles.json
 |---|---|---|
 | `SUPABASE_URL` | כתובת הפרויקט | מסד הנתונים |
 | `SUPABASE_SERVICE_ROLE_KEY` | service role key, שרת בלבד | קריאה וכתיבה של חידות |
+| `NEXT_PUBLIC_SITE_URL` | ברירת מחדל `https://maamar-musgar.com` | הדומיין שאליו מועברות כניסות שנחתו ב־vercel.app |
 
 ### כניסה לסטודיו
 
@@ -122,8 +123,26 @@ node --env-file=.env scripts/import-puzzles.ts data/puzzles.json
 insert into editors (email) values ('someone@example.com');
 ```
 
-ב־Supabase, תחת Authentication → URL Configuration, יש להוסיף ל־Redirect URLs את
-`https://maamar-musgar.vercel.app/api/admin/callback` ואת `http://localhost:3000/api/admin/callback`.
+ב־Supabase, תחת Authentication → URL Configuration:
+
+- **Site URL:** `https://maamar-musgar.com`
+- **Redirect URLs:** `https://maamar-musgar.com/**`, `https://www.maamar-musgar.com/**`, `https://maamar-musgar.vercel.app/**`, `http://localhost:3000/**`
+
+כתובת שלא מופיעה ברשימה גורמת ל־Supabase לשלוח את הקישור ל־Site URL במקום ליעד המבוקש.
+
+### כניסת שחקנים
+
+שחקנים נכנסים בקישור קסם לכל כתובת מייל. הקישור נוחת ב־`/auth/callback` (implicit flow, הטוקן ב־#fragment), כך שהוא עובד גם כשהמייל נפתח בדפדפן אחר מזה שבו ביקשו אותו. ההיסטוריה של המכשיר שביקש את הקישור, של הדפדפן שפתח אותו ושל `maamar-musgar.vercel.app` (אם הכניסה נחתה שם) מתמזגת לחשבון.
+
+### חידת היכרות
+
+שחקן חדש (בלי היסטוריה בדפדפן) מקבל בכניסה הראשונה הצעה לחידת היכרות קצרה ב־`/?tutorial=1`, עם הסבר שמתעדכן לפי ההתקדמות. היא לא נספרת בתוצאות או ברצף, ואפשר לחזור אליה מחלון העזרה. את החידה עצמה עורכים ב־[`lib/puzzle/onboarding.ts`](lib/puzzle/onboarding.ts); הבדיקה ב־`lib/__tests__/onboarding.test.ts` מוודאת שהיא נבנית ונפתרת.
+
+### גישת עורכים לחידות עתידיות
+
+עורך מחובר לסטודיו (או `WORKSPACE=local`) רואה במשחק הראשי גם חידות מתוזמנות שתאריכן עוד לא הגיע: בלוח החידות (מסומנות בסגול), בחיצי הניווט ובקישורי `[משחק]` בארכיון. חידה עתידית מוצגת כתצוגה מוקדמת ולא נשמרים לה תוצאה, רצף או התקדמות.
+
+ההתקדמות בכל חידה (פתרונות, טעויות, הצצות) נשמרת ב־localStorage לכל שחקן, ובטבלת `progress` לשחקנים מחוברים, כך שחידה שנפתרה חלקית ממשיכה מאותה נקודה.
 
 בלי `SUPABASE_URL` ו־`SUPABASE_SERVICE_ROLE_KEY` הסטודיו מחזיר 404. אין להגדיר `WORKSPACE=local` בפרודקשן.
 
