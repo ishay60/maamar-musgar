@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { applyCompletion, emptyStreak } from "@/lib/streak";
+import { applyCompletion, emptyStreak, hydrateStreak } from "@/lib/streak";
 import type { StreakData } from "@/lib/streak";
 
 const KEY = "maamar-musgar:streak-v1";
@@ -29,15 +29,26 @@ function save(data: StreakData): void {
   }
 }
 
-/** `seed` is the signed-in player's server history; it wins over the local cache when present. */
+/**
+ * `seed` is the signed-in player's server history. It is merged with this
+ * browser's history (never lowering anything), and any completions the server
+ * does not have yet are uploaded to the account.
+ */
 export function useStreak(today: string, seed?: StreakData) {
   const [data, setData] = useState<StreakData>(emptyStreak);
 
   useEffect(() => {
-    const local = load();
-    const next = seed ? { ...seed, completed: { ...local.completed, ...seed.completed } } : local;
+    const { data: next, missing } = hydrateStreak(load(), seed, today);
     setData(next);
-    if (seed) save(next);
+    if (!seed) return;
+    save(next);
+    if (missing.length) {
+      fetch("/api/results/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entries: missing }),
+      }).catch(() => {});
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

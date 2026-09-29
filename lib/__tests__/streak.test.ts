@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyCompletion, deriveStreak, emptyStreak } from "../streak";
+import { applyCompletion, deriveStreak, emptyStreak, mergeStreak } from "../streak";
 
 const done = (d: string, current: number, last: string | null = d) => ({
   ...emptyStreak,
@@ -15,6 +15,7 @@ describe("applyCompletion", () => {
     expect(s.current).toBe(1);
     expect(s.longest).toBe(1);
     expect(s.lastPuzzleDate).toBe("2026-05-01");
+    expect(s.completed["2026-05-01"].live).toBe(true);
   });
 
   it("extends the streak on consecutive days", () => {
@@ -33,7 +34,7 @@ describe("applyCompletion", () => {
     const s = applyCompletion(done("2026-05-02", 3), "2026-04-10", "2026-05-02", 90, "r");
     expect(s.current).toBe(3);
     expect(s.lastPuzzleDate).toBe("2026-05-02");
-    expect(s.completed["2026-04-10"]).toEqual({ score: 90, rank: "r" });
+    expect(s.completed["2026-04-10"]).toEqual({ score: 90, rank: "r", live: false });
   });
 
   it("ignores replays of an already completed puzzle", () => {
@@ -53,5 +54,52 @@ describe("deriveStreak", () => {
   });
   it("handles no history", () => {
     expect(deriveStreak([], "2026-05-10")).toEqual({ current: 0, longest: 0, lastPuzzleDate: null });
+  });
+});
+
+describe("mergeStreak", () => {
+  const done = (...dates: string[]) => Object.fromEntries(dates.map((d) => [d, { score: 90, rank: "ראש עיר" }]));
+
+  it("never lowers the local streak when the server has less", () => {
+    const local = { current: 6, longest: 6, lastPuzzleDate: "2026-09-23", completed: done("2026-09-18", "2026-09-23") };
+    const merged = mergeStreak(local, emptyStreak, "2026-09-24");
+    expect(merged.current).toBe(6);
+    expect(merged.longest).toBe(6);
+    expect(Object.keys(merged.completed)).toHaveLength(2);
+  });
+
+  it("rebuilds a streak that an earlier sign-in overwrote with zeros", () => {
+    const dates = ["2026-09-15", "2026-09-18", "2026-09-19", "2026-09-20", "2026-09-21", "2026-09-22", "2026-09-23"];
+    const completed = Object.fromEntries(dates.map((date) => [date, { score: 90, rank: "x", live: true }]));
+    const wiped = { current: 0, longest: 0, lastPuzzleDate: null, completed };
+    const merged = mergeStreak(wiped, emptyStreak, "2026-09-24");
+    expect(merged.current).toBe(6);
+    expect(merged.longest).toBe(6);
+    expect(merged.lastPuzzleDate).toBe("2026-09-23");
+  });
+
+  it("does not rebuild a zeroed streak from unclassified completed dates", () => {
+    const dates = ["2026-09-15", "2026-09-16", "2026-09-17"];
+    const completed = Object.fromEntries(dates.map((date) => [date, { score: 90, rank: "x" }]));
+    const archiveOnly = { current: 0, longest: 0, lastPuzzleDate: null, completed };
+    expect(mergeStreak(archiveOnly, emptyStreak, "2026-09-18")).toMatchObject({
+      current: 0,
+      longest: 0,
+      lastPuzzleDate: null,
+    });
+  });
+
+  it("takes the current streak from whichever side played last", () => {
+    // Local run 09-17..09-18, then a gap: the server's run 09-21..09-24 is the current one.
+    const local = { current: 2, longest: 9, lastPuzzleDate: "2026-09-18", completed: {} };
+    const server = { current: 4, longest: 4, lastPuzzleDate: "2026-09-24", completed: done("2026-09-24") };
+    const merged = mergeStreak(local, server, "2026-09-24");
+    expect(merged).toMatchObject({ current: 4, longest: 9, lastPuzzleDate: "2026-09-24" });
+  });
+
+  it("joins runs that continue each other across devices", () => {
+    const local = { current: 2, longest: 2, lastPuzzleDate: "2026-09-20", completed: {} };
+    const server = { current: 4, longest: 4, lastPuzzleDate: "2026-09-24", completed: {} };
+    expect(mergeStreak(local, server, "2026-09-24")).toMatchObject({ current: 6, longest: 6 });
   });
 });
